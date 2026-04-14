@@ -1,0 +1,113 @@
+A sequence is an ordered collection of items where every item has a position — an index — and you can step through the items one by one. Python has three built-in sequence types you will use constantly: strings for text, lists for ordered mutable collections, and tuples for ordered immutable collections. Because all three are sequences, they share a common set of operations: indexing, slicing, length, membership testing, concatenation, and iteration. Understanding sequences well is one of the highest-leverage things you can do as a Python programmer.
+
+Common Sequence Operations.
+
+Before looking at each type individually, it helps to know the operations that work on all sequences — string, list, and tuple alike.
+
+You access an item by its index in square brackets. Indexes start at zero, so the first item is at index zero and the last is at index one less than the length. You can get the number of items with the len function. The in and not in operators test membership. The plus operator concatenates two sequences into a new one. The multiplication operator repeats a sequence a given number of times. The min and max functions return the smallest and largest item. The count method counts how many times a value appears. The index method returns the position of the first occurrence.
+
+Indexing and Slicing.
+
+Python indexes from zero. Negative indexes count backwards from the end — negative one is the last item, negative two is the second-to-last, and so on. This is convenient: you never need to write len minus one to get the last item; you just write negative one.
+
+A slice extracts a sub-sequence. The syntax is: the sequence name, an opening bracket, a start index, a colon, a stop index, optionally another colon and a step, then a closing bracket. Start is the first index included. Stop is the first index excluded — the slice goes up to but does not include it. Step controls how many positions to advance on each iteration.
+
+Any of the three can be omitted. Omitting start means begin from the very first item. Omitting stop means go all the way to the end. A slice with no start or stop — just a colon — is a full copy. A step of negative one reverses the sequence.
+
+Slices never raise an IndexError. Out-of-range values are silently clamped to the valid range. A slice always returns the same type as the original: a string slice is a string, a list slice is a list, a tuple slice is a tuple.
+
+Strings.
+
+A string is an immutable sequence of Unicode characters. Immutable means once created, the characters cannot be changed. Any operation that appears to modify a string is actually returning a new one — the original is untouched.
+
+Strings are defined with single quotes, double quotes, or triple quotes for multi-line text. Python treats single and double quotes identically. Use double quotes when your text contains an apostrophe, and single quotes when it contains a double quote — this avoids the need for backslash escapes.
+
+Raw strings are prefixed with a lowercase r before the opening quote. Inside a raw string, backslashes are treated as literal characters rather than escape sequences. This is useful for Windows file paths and for regular expression patterns, where backslashes have special meaning and you do not want Python to interpret them first.
+
+String Methods.
+
+Strings have a rich set of built-in methods. Because strings are immutable, every method returns a new string — the original is never modified.
+
+Case methods: upper converts to all uppercase. Lower converts to all lowercase. Title capitalises the first letter of every word. Swapcase flips uppercase to lowercase and vice versa.
+
+Whitespace methods: strip removes leading and trailing whitespace. Lstrip removes only leading whitespace. Rstrip removes only trailing whitespace.
+
+Search methods: find returns the index of the first match, or negative one if not found. Count returns how many times a substring appears. Startswith and endswith return True if the string begins or ends with the given substring.
+
+The replace method returns a new string with all occurrences of one substring replaced by another. An optional third argument limits how many replacements are made.
+
+Split and join are the two most important string-to-list operations. Split breaks a string into a list of substrings wherever the delimiter appears. Called with no argument, it splits on any whitespace and discards empty strings — useful for normalising messy input. Join does the opposite: it assembles a list of strings into a single string, with the separator between each item. Join is called on the separator, not on the list, which surprises people at first but becomes natural quickly.
+
+F-strings, introduced in Python 3.6, are the standard way to embed values inside strings. Prefix the opening quote with a lowercase f, then place any variable or expression inside curly braces. Python evaluates the expression and inserts the result. Format specifiers inside the braces control alignment, padding, decimal places, thousands separators, and number bases — all after a colon.
+
+Strings are immutable, so you cannot assign to an index. If you need to change a character, build a new string — for example by concatenating a replacement character with a slice of the rest, or by using the replace method.
+
+Lists.
+
+A list is a mutable, ordered sequence of items. Items can be of any type and can be mixed. Lists are defined with square brackets. Mutable means you can change, add, and remove items after creation — the list object is modified in place.
+
+You can assign directly to an index to replace that item. You can assign to a slice to replace a range of items with any number of new items — the replacement does not need to be the same length as the range you are replacing.
+
+The append method adds one item to the end of the list. It is the most common way to grow a list. Extend adds all items from another iterable to the end. Insert adds an item at a specific index, shifting everything after it to the right. Pop removes and returns the last item by default, or the item at a given index. Remove scans the list and removes the first occurrence of a given value — it raises a ValueError if the value is not found. The del statement removes an item by index, or a range of items by slice.
+
+To sort a list, call sort on it directly — this modifies the list in place and returns None. Pass reverse equals True to sort in descending order. Pass a key function to sort by a transformed value, such as the length of each string. The built-in sorted function is the alternative: it leaves the original unchanged and returns a new sorted list. Use sorted whenever you need to preserve the original order.
+
+The reverse method reverses the list in place. The index method returns the index of the first occurrence of a value. The count method counts how many times a value appears.
+
+Copying Lists.
+
+Assigning a list to a new variable does not copy it — both variables point to the same list object in memory. If you modify the list through one variable, the other sees the change too.
+
+To get an independent copy, use the copy method, pass the list to the list constructor, or use a full slice with no start or stop. All three produce what is called a shallow copy. A shallow copy is a new list object, but any mutable objects nested inside — inner lists, dicts, and so on — are still shared between the original and the copy. Modifying a nested object through the copy also modifies it through the original.
+
+For a fully independent copy that duplicates nested structures too, use deepcopy from the copy module. It recursively copies everything.
+
+Tuples.
+
+A tuple is an immutable, ordered sequence of items. Once created, items cannot be added, removed, or replaced. Tuples are defined with parentheses, or simply by separating values with commas — it is the comma that makes the tuple, not the parentheses.
+
+The most common mistake with tuples is trying to create a one-item tuple. Writing just a value in parentheses does not create a tuple — it is just the value in parentheses, like grouping in arithmetic. To create a one-item tuple, you must add a trailing comma after the value.
+
+Tuples support all the same read-only sequence operations as lists: indexing, slicing, len, in, count, and index. What they do not support is any modification. Attempting to assign to an index raises a TypeError.
+
+There is a subtlety: a tuple can contain a mutable object like a list. The tuple itself is immutable — you cannot replace the list with something else — but the list inside can still be modified. The tuple guarantees the container, not the contents.
+
+Use tuples when the collection represents a single compound value that should stay together unchanged — coordinates, a colour as red-green-blue values, a database row. Tuples signal intent to the reader: these items belong together and should not change.
+
+Packing and Unpacking.
+
+Packing is when Python automatically wraps multiple values into a tuple. Unpacking is the reverse — binding the items of a tuple or any iterable to separate variables in one assignment.
+
+Basic unpacking lists the target variables on the left side of the assignment and the sequence on the right. The number of variables must match the number of items. You have already seen this in function return values and for loops.
+
+Python's swap idiom uses unpacking. Writing a comma b equals b comma a swaps the two variables in a single line, with no temporary variable needed.
+
+Extended unpacking with a star prefix allows one variable to capture all the remaining items. You can put the star variable in any position: at the start to capture everything up to the last item, at the end to capture everything after the first, or in the middle to capture everything between the first and last. The star variable always captures a list, even if it ends up empty.
+
+Named Tuples.
+
+A regular tuple is accessed by index. In a tuple with three or more items, positional access can be opaque — what does row index two mean? The namedtuple factory in the collections module creates a tuple subclass whose fields have names. You define the type once by giving it a name and a list of field names. Instances are created like regular tuples but can be accessed by name as well as by index.
+
+Named tuples retain all the properties of regular tuples: they are immutable, they unpack, and they use the same memory as a plain tuple. The field names are just a convenience on top.
+
+Choosing Between List, Tuple, and String.
+
+A helpful rule: if the collection will change — items will be added, removed, or replaced over time — use a list. If the collection represents a single compound value that should stay together unchanged, use a tuple. If it is text, it is a string.
+
+Summary.
+
+All sequences support indexing, slicing, len, membership testing with in and not in, concatenation with plus, repetition with multiplication, min, max, count, and index.
+
+Negative indexes count from the end. Slices never raise IndexError.
+
+Strings are immutable sequences of Unicode characters. Key methods are upper, lower, strip, split, join, replace, find, startswith, and endswith. Use f-strings for embedding and formatting values.
+
+Lists are mutable. Key methods are append, extend, insert, pop, remove, sort, and reverse. Assigning a list to another variable is not a copy — use copy, list, or a full slice. Use deepcopy for nested structures.
+
+Tuples are immutable. The comma makes the tuple, not the parentheses — a trailing comma is required for a one-item tuple. Use tuples for fixed groupings of values that should not change.
+
+Unpacking assigns sequence items to variables in one step. Extended unpacking with a star captures the remaining items as a list.
+
+Named tuples add field names to tuples without sacrificing immutability or memory efficiency.
+
+In the next notebook, we cover dictionaries and sets — the key-value store and the unordered unique-item collection.
