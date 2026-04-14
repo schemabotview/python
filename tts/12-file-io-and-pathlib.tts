@@ -1,0 +1,133 @@
+Almost every real program reads from or writes to files — configuration, data, logs, exports. Python makes file I/O straightforward but has enough subtleties — text versus binary mode, encodings, line endings, resource cleanup — that it is worth understanding properly. This notebook covers the built-in open function, context managers for safe resource handling, the modern pathlib module for path manipulation, and working with the two most common structured file formats: CSV and JSON.
+
+Opening Files.
+
+The open function returns a file object. The most important parameter after the path is the mode.
+
+The default mode is read-text, written as a lowercase r. Write-text, written as a lowercase w, creates the file if it does not exist or truncates it to empty if it does. Append, lowercase a, creates the file if it does not exist or adds content to the end without truncating. Exclusive create, lowercase x, fails with a FileExistsError if the file is already there — useful when you want to guarantee you are not overwriting anything. Binary read and binary write are the text modes with a lowercase b appended.
+
+Always specify an encoding when opening text files. The default is platform-dependent, which means your code behaves differently on different machines. Use encoding equals utf-8 for almost everything.
+
+Always close files after use. The with statement does this automatically, even when an exception occurs inside the block. It is the standard, correct way to work with files. Never call open without a with block in production code.
+
+Reading Files.
+
+File objects provide several ways to read content.
+
+Calling read with no argument reads the entire file into a single string. This is fine for small files but will load the entire thing into memory at once.
+
+Readline reads one line, including the trailing newline character. Calling it repeatedly advances through the file line by line.
+
+Readlines reads all lines into a list, where each element includes its trailing newline. You can strip the newlines with rstrip or a list comprehension.
+
+Iterating the file object directly is the most memory-efficient option for large files. Each iteration yields one line, and only that line is held in memory at a time.
+
+The tell method returns the current byte offset in the file. The seek method moves to a specific byte offset. Passing zero to seek rewinds to the beginning, which lets you read the same file multiple times without reopening it.
+
+Writing Files.
+
+The write method writes a string to the file. It returns the number of characters written. You are responsible for adding newlines — write does not add them automatically.
+
+The writelines method writes an iterable of strings without adding any separators or newlines between them. This is the counterpart to readlines.
+
+The print function accepts a file keyword argument. Passing an open file to print writes to that file, which is convenient for formatted output since print handles spacing and newlines for you.
+
+Opening a file in append mode means every write call adds content to the end. The previous content is preserved. This is useful for log files where multiple processes or program runs contribute to the same file.
+
+Text versus Binary Mode.
+
+In text mode, Python decodes bytes to strings using an encoding. It also normalises line endings: carriage-return-newline sequences on Windows are converted to plain newlines when reading. When writing, newlines are converted back to the platform's convention.
+
+In binary mode, Python reads and writes raw bytes with no decoding, no encoding, and no line-ending translation. Use binary mode for images, audio files, executables, network protocols, and any file format that is not plain text.
+
+The distinction matters for file formats that embed binary data. If you open a JPEG in text mode, Python may corrupt it by misinterpreting bytes as encoding sequences or altering byte sequences that happen to look like Windows line endings.
+
+When you open a file in binary mode and read its contents, you get a bytes object, not a string. The first few bytes of a file are often called its magic bytes and identify the file format — the first eight bytes of every PNG file, for example, are always the same sequence.
+
+pathlib — Modern Path Handling.
+
+The pathlib module, introduced in Python 3.4, represents file system paths as objects. A Path object knows how to be joined, split, tested, and iterated — operations that previously required the os.path module and string manipulation.
+
+You create a Path by passing a string to the Path constructor. On all platforms you use forward slashes in string literals, and pathlib handles the platform-specific separator internally.
+
+The division operator joins path components. Writing a base path divided by a subdirectory name divided by a filename reads naturally, and pathlib produces the correct path for the current operating system.
+
+Path objects have a rich set of inspection attributes: name returns just the filename, stem returns the filename without its suffix, suffix returns the file extension including the dot, and parent returns the containing directory as another Path object.
+
+Several boolean methods let you query the file system: exists returns True if the path points to something, is_file returns True for a regular file, is_dir returns True for a directory. The stat method returns metadata including the file size.
+
+The resolve method returns the absolute path with any symlinks resolved. With_suffix and with_name return new Path objects with the suffix or filename replaced — they do not rename the file, they just compute a new path.
+
+Path objects have read_text and write_text methods that open, read or write, and close the file in one call. Read_bytes and write_bytes do the same in binary mode. For simple operations, these are cleaner than opening the file explicitly.
+
+Directory Operations.
+
+The mkdir method creates a directory. Passing parents equals True creates any missing parent directories automatically. Passing exist_ok equals True means no error is raised if the directory already exists. You will almost always want both.
+
+The iterdir method yields Path objects for all immediate children of a directory. It does not recurse into subdirectories.
+
+The glob method matches files within the directory using a pattern. An asterisk matches any sequence of characters within a single path component. The rglob method, short for recursive glob, searches all subdirectories. Passing double asterisk followed by a pattern to glob does the same thing. Both return generators, so they are memory-efficient even for large directory trees.
+
+The relative_to method strips a common prefix from a path, which is useful for displaying paths relative to a project root.
+
+The rename method moves or renames a file. The unlink method deletes a file. Passing missing_ok equals True to unlink means no error if the file is already gone. The rmdir method removes an empty directory. For a directory tree with contents, use shutil.rmtree.
+
+CSV Files.
+
+CSV, comma-separated values, is the most common plain-text data interchange format. Python's csv module handles quoting, escaping, and line-ending conventions correctly. Do not parse CSV with split on a comma — fields can contain commas inside quoted strings, and hand-rolled parsing breaks on those cases.
+
+The DictWriter class writes rows from dictionaries. You specify the field names in order, call writeheader to write the column names, and then writerows to write all the data rows at once.
+
+The DictReader class reads rows as dictionaries with the field names from the header row as keys. The fieldnames attribute is available after the first row is read.
+
+All values read from CSV are strings regardless of how they were written. If a field contains a number, you must convert it with int or float after reading.
+
+Always open CSV files with newline equals empty string. This disables the text mode line-ending translation and lets the csv module handle line endings correctly itself. On Windows in particular, not doing this can result in extra blank rows.
+
+The delimiter argument controls the field separator. Passing tab produces a tab-separated file. The csv module supports other dialects and options for quoting behaviour through the dialect and quoting arguments.
+
+JSON Files.
+
+JSON is the standard format for structured data exchange — APIs, configuration files, logs. Python's json module converts between Python objects and JSON text.
+
+Python dictionaries become JSON objects. Lists and tuples become JSON arrays. Strings become JSON strings. Integers and floats become JSON numbers. True and False become lowercase true and false. None becomes null.
+
+The dump function writes Python data to a file object as JSON. The load function reads JSON from a file object back to Python data. The s-variants — dumps and loads — work with strings instead of files.
+
+The indent argument to dump and dumps adds whitespace to make the output human-readable. Without it, the output is a compact single line.
+
+JSON does not have native types for datetime objects, Decimal, sets, or other Python-specific types. Attempting to serialise them raises a TypeError. You handle this by subclassing json.JSONEncoder and overriding the default method to convert unsupported types to JSON-compatible representations.
+
+In-Memory Files.
+
+io.StringIO and io.BytesIO are file-like objects backed by an in-memory buffer rather than a file on disk. They support the full file API — read, write, seek, tell, getvalue — and are accepted anywhere a file object is expected.
+
+A common use is generating formatted output without writing to disk. You create a StringIO, pass it to code that writes to files, and then call getvalue to retrieve the entire contents as a string. This is particularly useful for testing: you can pass a StringIO to a function that writes CSV or JSON, then assert on the resulting string without creating any files.
+
+BytesIO serves the same purpose for binary data. You write bytes to it, seek back to the start, and read from it just as you would a file opened in binary mode.
+
+Practical Patterns.
+
+Atomic writes are important when multiple processes might read a file while it is being written. The pattern is to write to a temporary file in the same directory, then call rename to replace the target. On POSIX systems, rename is atomic — readers will always see either the old complete file or the new complete file, never a partially written one.
+
+Loading a JSON configuration file with a fallback default is a pattern that appears constantly. Try to read the file and parse it; if the file is not found, return a default value; if the file exists but contains invalid JSON, raise an informative error.
+
+Summary.
+
+Open with a mode and encoding argument, always inside a with statement. Modes: r reads, w writes and truncates, a appends, x creates exclusively, b suffix for binary. Always specify encoding equals utf-8 for text.
+
+Read with read for the whole file, readline for one line, readlines for a list, or iterate the file object for memory-efficient line-by-line processing. Use seek to rewind.
+
+Write with the write method or writelines for an iterable. Print with a file argument works too. Append mode preserves existing content.
+
+Text mode decodes bytes and normalises line endings. Binary mode reads and writes raw bytes — use for non-text formats.
+
+pathlib Path objects join with the division operator, expose name, stem, suffix, and parent, test with exists, is_file, and is_dir, and read or write with read_text, write_text, read_bytes, and write_bytes. mkdir with parents and exist_ok, iterdir for immediate contents, rglob for recursive search, unlink to delete a file, shutil.rmtree to delete a directory tree.
+
+CSV: use DictWriter and DictReader, always open with newline equals empty string, values are strings on read, convert types explicitly.
+
+JSON: dump and load for files, dumps and loads for strings. Use indent for readability. Subclass JSONEncoder to handle non-serialisable types.
+
+io.StringIO and io.BytesIO are in-memory file objects — use for testing and building content without touching disk.
+
+In the next notebook, we cover modules and packages — how Python organises code across multiple files, imports, and the standard library.

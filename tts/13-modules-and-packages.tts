@@ -1,0 +1,133 @@
+Every Python file is a module, and every directory of modules can become a package. The import system is how programs split across multiple files share code — it is also how the standard library and third-party libraries reach your code. Understanding how imports work, how Python finds modules, how packages are structured, and how to manage dependencies with virtual environments are essential skills for writing anything beyond a single script. This notebook covers all of it.
+
+What Is a Module.
+
+A module is any Python file. When you import it, Python executes the file from top to bottom and makes its names available under the module's namespace. Once imported, the module object is stored in sys.modules, a dictionary that acts as an import cache. Subsequent imports of the same module return the cached object instantly — the file is not re-executed.
+
+Python ships with hundreds of modules in the standard library: os, sys, math, datetime, json, pathlib, itertools, collections, and many more. They are always available without installing anything.
+
+Import Forms.
+
+The simplest import brings the whole module into the current namespace under its own name. You access its contents with dot notation.
+
+You can give the module a shorter or more convenient name with the as keyword. This is especially useful for long names like datetime or for resolving name conflicts.
+
+The from-import form brings specific names directly into the current namespace. You no longer need the module prefix to use them.
+
+You can combine from-import with as to rename a name on import.
+
+Avoid the star import form — from module import star — in production code. It pulls every public name from the module into your namespace without making it obvious where each name came from. The only acceptable use is an interactive shell session.
+
+Module Search Path.
+
+When you write import foo, Python searches for foo in a specific order. First it checks sys.modules — if the module is already cached, it returns immediately. Next it checks built-in modules compiled directly into the interpreter, like sys and builtins. Finally it searches the directories listed in sys.path.
+
+The sys.path list is built when Python starts. The first entry is the directory containing the script being run, or an empty string for the current directory in an interactive session. After that come any directories listed in the PYTHONPATH environment variable. Then the standard library directories. Then the site-packages directory where third-party packages are installed.
+
+You can append to sys.path at runtime, but this is fragile and makes your code harder to distribute. Prefer proper package installation.
+
+After any import, sys.modules maps the module name to the module object. Importing the same module twice returns the same object from cache — they are identical, not just equal.
+
+The dunder-name variable and the Script Guard.
+
+Every module has a dunder-name attribute. When a file is imported as a module, dunder-name is set to the module's name — the filename without the dot-py extension. When a file is run directly as a script — with python filename.py — dunder-name is set to the string double-underscore-main.
+
+This distinction lets a single file serve dual purpose. The if-dunder-name-equals-dunder-main guard puts the script-level code inside a conditional. When the file is imported, that block is skipped. When the file is run directly, that block executes. The functions and classes defined above the guard are available in both cases.
+
+This is the standard pattern for any module you expect to be both importable and executable. Define all your reusable logic as functions and classes at the top, put the script entry point in a function called main, and call main only under the dunder-name guard.
+
+Packages.
+
+A package is a directory that contains Python modules. It must contain an dunder-init-dot-py file. That file runs when the package is imported and is the right place to define the package's public API.
+
+The directory structure of a package makes the dot-separated import path. A file at mypackage slash core dot py is imported as mypackage.core. A file at mypackage slash subpackage slash helpers dot py is imported as mypackage.subpackage.helpers.
+
+The dunder-init file typically re-exports the package's most important names so callers can import from the package directly rather than from individual submodules. This hides the internal structure and gives you freedom to reorganise files without breaking your users' import statements.
+
+The dunder-init file is also the standard place to set dunder-version and dunder-all.
+
+Relative Imports.
+
+Inside a package, modules can import from each other using relative imports. A single leading dot means the current package. Two dots mean the parent package.
+
+Relative imports are more robust than absolute imports inside a package because they do not depend on where the package is installed. If you rename the package or move it, the relative imports still work.
+
+Relative imports only work in files that are part of a package and are imported as modules. They do not work in a file run directly as a script, because a script has no package context.
+
+dunder-all — Controlling Exports.
+
+Defining dunder-all in a module is a list of strings naming the names that star import should export. It also serves as explicit documentation of the module's public API.
+
+Without dunder-all, a star import exports every name that does not start with an underscore. With dunder-all, only the listed names are exported. Names not in dunder-all are still accessible through normal imports — dunder-all only affects star imports.
+
+Defining dunder-all is good practice for any module you share. It makes the intended public surface explicit and prevents internal implementation details from leaking through star imports.
+
+The Standard Library — Key Modules.
+
+Python's standard library is vast. These are the modules every Python programmer uses regularly.
+
+The os module provides operating system interfaces: the current working directory, environment variables, process information, file and directory operations.
+
+The sys module exposes information about the Python runtime: the version, the platform, command-line arguments, the module search path, and functions for exiting the process.
+
+The datetime module handles dates, times, and durations. The date class represents a calendar date. The datetime class represents a point in time. The timedelta class represents a duration. Subtracting two dates gives a timedelta; adding a timedelta to a date gives a new date.
+
+The itertools module provides a toolkit of iterator building blocks. Chain flattens multiple iterables into one. Islice takes a lazy slice of an iterator without consuming it all. Product computes the Cartesian product of multiple iterables. Groupby groups consecutive equal elements — useful for processing sorted data.
+
+The functools module provides higher-order function utilities. Lru_cache is a decorator that memoises function calls, storing results in a cache keyed by the arguments. Reduce folds a sequence to a single value by repeatedly applying a binary function. Partial pre-fills some arguments of a function, returning a new callable with fewer parameters.
+
+The collections module provides specialised container types beyond the built-ins. Counter counts occurrences in an iterable. defaultdict provides automatic default values for missing keys. Deque is a double-ended queue with O of one append and pop at both ends. Namedtuple creates lightweight immutable record types with named fields.
+
+The re module provides regular expression matching. Findall returns all non-overlapping matches as a list. Sub replaces matches with a string. Compile pre-compiles a pattern for efficient repeated use.
+
+The logging module provides a full logging framework. Rather than using print for diagnostic output, use logging. It lets you control output verbosity at runtime, format messages consistently, and route output to different destinations — files, streams, external services — without changing the code.
+
+Third-Party Packages and pip.
+
+The Python Package Index, PyPI, hosts hundreds of thousands of third-party packages. pip is the standard installer. Running pip install package-name downloads and installs the package into the current Python environment.
+
+You can install a specific version with pip install package equals equals version number. You can install all packages listed in a requirements file with pip install dash-r requirements.txt.
+
+A requirements.txt file pins exact versions for reproducible builds. You generate it from your current environment with pip freeze redirected to the file. Anyone who runs pip install dash-r on your requirements file gets identical versions.
+
+Virtual Environments.
+
+A virtual environment is an isolated Python installation with its own site-packages and its own pip. Packages installed in one virtual environment are invisible to other environments and to the system Python.
+
+You create a virtual environment with python dash-m venv dot-venv, where dot-venv is the directory name — the conventional choice. You activate it by sourcing the activate script in its bin directory on macOS and Linux, or running the activate script in its Scripts directory on Windows. Once activated, your prompt changes to show the environment name, and pip install puts packages into that environment rather than the system.
+
+Always use a virtual environment for every project. It is the single most important habit for avoiding dependency conflicts. When two projects need different versions of the same package, virtual environments keep them completely separate.
+
+Never commit the virtual environment directory to version control. Add it to your dot-gitignore file. The requirements.txt file is what you commit — it contains everything needed to recreate the environment.
+
+Import Patterns.
+
+Conditional import handles optional or platform-specific dependencies. Try to import the preferred implementation; catch ImportError and fall back to an alternative. This is the standard pattern for shipping code that works with a fast third-party library if available and falls back to the standard library otherwise.
+
+Lazy import defers the import to the first time it is actually needed. You put the import statement inside the function that uses the module rather than at the top of the file. This reduces startup time for CLIs and large applications where some code paths are rarely used.
+
+The importlib module provides programmatic import when the module name is a string known only at runtime. The import_module function does exactly what import does but takes a string argument. This is the foundation of plugin systems where module names come from configuration files or user input.
+
+A well-structured package dunder-init file re-exports the public API so callers can import from the package name directly, sets dunder-version, and defines dunder-all. This gives the package a clean, stable public surface that is independent of the internal file organisation.
+
+Summary.
+
+A module is any Python file. Import with import name, from name import x, or import name as alias. Modules are executed once and cached in sys.modules.
+
+sys.path is the list of directories Python searches. It starts with the script's directory and includes standard library and site-packages paths.
+
+dunder-name is double-underscore-main when a file is run directly and the module name when imported. The if-dunder-name guard separates library code from script code.
+
+A package is a directory with a dunder-init file. The init file re-exports the public API. Use relative imports — leading dots — for cross-module imports within a package.
+
+dunder-all lists names exported by star import. It also documents the public API. Define it in every module you share.
+
+Key standard library modules: os, sys, math, datetime, pathlib, json, csv, re, itertools, functools, collections, and logging.
+
+pip install installs from PyPI. Pin versions in requirements.txt. Use pip freeze to generate it.
+
+Virtual environments isolate each project's dependencies. Always use one per project. Never commit the dot-venv directory.
+
+Conditional import handles optional dependencies. Lazy import defers cost until needed. importlib.import_module imports by string name for plugin systems.
+
+In the next notebook, we cover iterators and generators — the protocol behind every for loop in Python and how to write memory-efficient data pipelines.
