@@ -1,0 +1,91 @@
+Operators are the symbols that tell Python how to compute and combine values. An expression is any combination of values, variables, and operators that Python can evaluate down to a single result. This notebook walks through every category of Python operator — arithmetic, comparison, logical, assignment, identity, membership, and bitwise — and explains operator precedence so you know exactly what Python evaluates first.
+
+Arithmetic Operators.
+
+Python gives you seven arithmetic operators. Addition, subtraction, and multiplication work exactly as you would expect. Division with a single forward slash always returns a float in Python 3 — even when the result is a whole number. Ten divided by two gives five-point-zero, not five.
+
+Floor division uses a double forward slash. It divides and then rounds down to the nearest integer, toward negative infinity — not toward zero. Negative seven floor-divided by two gives negative four, not negative three. The modulo operator — the percent sign — returns the remainder after floor division. It sounds dry, but it is surprisingly useful. Taking any number modulo two tells you whether it is even or odd. Taking any number modulo ten gives you its last digit. Exponentiation uses a double asterisk.
+
+A practical example: if you have a total number of seconds and want to express it as hours, minutes, and seconds, you use a combination of floor division and modulo. Divide by three thousand six hundred to get the hours. Take the remainder of that division, then floor-divide by sixty to get the minutes. The remainder of that is the seconds.
+
+Comparison Operators.
+
+Comparison operators compare two values and always return a boolean — True or False. Python has six of them: equal to, not equal to, less than, greater than, less than or equal to, and greater than or equal to.
+
+The most common mistake is using a single equals sign — which is assignment — where you meant a double equals sign for comparison. Score equals ten sets a variable. Score double-equals ten asks a question.
+
+Python also supports chained comparisons, which read exactly like mathematical notation. Instead of writing age greater-than-or-equal-to eighteen and age less-than-or-equal-to sixty-five, you can write eighteen less-than-or-equal-to age less-than-or-equal-to sixty-five. Python evaluates it correctly and it is far more readable.
+
+Comparison operators work on strings too, using alphabetical order based on Unicode values.
+
+Logical Operators.
+
+Logical operators combine boolean values. Python uses plain English words — and, or, not — rather than symbols.
+
+And returns True only when both operands are truthy. Or returns True when at least one operand is truthy. Not flips the boolean — True becomes False, False becomes True.
+
+Python uses short-circuit evaluation. For and, if the left side is falsy, Python stops immediately and returns that value — it never looks at the right side. For or, if the left side is truthy, Python stops and returns it. This matters when the right side has side effects or could raise an error. You can safely write: if the list has items and the first item equals something — if the list is empty, Python will never try to access the first item.
+
+The or operator has a useful secondary pattern: you can use it to supply a default value. If a variable is falsy — say it is an empty string — you write the variable or the fallback value. Python evaluates the variable, finds it falsy, and returns the fallback instead.
+
+Assignment Operators.
+
+The basic assignment operator stores a value in a variable. Python also has augmented assignment operators that combine an arithmetic operation with assignment. Writing score plus-equals ten is exactly equivalent to writing score equals score plus ten, but shorter and more readable. The same pattern works for all the arithmetic operators: minus-equals, times-equals, divide-equals, floor-divide-equals, modulo-equals, and exponent-equals.
+
+Identity Operators.
+
+The double-equals operator checks if two values are equal. The is operator checks something different — whether two variables point to the exact same object in memory.
+
+This distinction matters most with None. The correct idiom is always if result is None, not if result double-equals None. The reason: a custom class can override the equality operator to return anything it likes, making double-equals None unreliable. The is operator cannot be overridden.
+
+Python caches small integers and common strings as an optimisation, which can make is return True unexpectedly in the interactive prompt. Do not rely on this behaviour. Use is only for None, True, and False.
+
+Membership Operators.
+
+The in operator tests whether a value exists inside a collection — a string, list, tuple, set, or dictionary. Not in tests for absence. For dictionaries, in checks keys, not values.
+
+Checking if a substring exists inside a string is the same operator: if at-sign in email. This makes membership tests in Python very natural to read and write.
+
+Bitwise Operators.
+
+Bitwise operators work directly on the binary representation of integers, operating bit by bit. You will encounter them in systems programming, networking, and anywhere multiple on-off flags are packed into a single integer.
+
+AND — the ampersand — produces a one only where both bits are one. OR — the vertical bar — produces a one where either bit is one. XOR — the caret — produces a one where the bits differ. NOT — the tilde — flips all bits, which is equivalent to negating the number and subtracting one. Left shift moves bits to the left, which multiplies by a power of two. Right shift moves bits to the right, which divides by a power of two.
+
+A practical use: permission flags. If you have three flags — read, write, and execute — each as a power of two, you can combine them with OR to grant permissions, and test individual permissions with AND. This is exactly how Unix file permissions work.
+
+Operator Precedence.
+
+When an expression contains multiple operators, Python evaluates them in a specific order. The rules are similar to the order of operations you learned in maths.
+
+Parentheses are evaluated first — always. Then exponentiation. Then unary operators like negative sign. Then multiplication, division, floor division, and modulo, all at the same level. Then addition and subtraction. Bitwise shifts come next, then bitwise AND, XOR, and OR. Comparison operators all have the same precedence and come after arithmetic. Then not, then and, then or — which has the lowest precedence of all.
+
+The practical advice is not to memorise all these levels, but to use parentheses whenever the expression is not obvious. A reader should not have to look up precedence rules to understand your code.
+
+Expressions versus Statements.
+
+An expression is any piece of code that evaluates down to a value. You can assign it, print it, or pass it to a function. A statement is an instruction that does something, but does not itself evaluate to a value — an assignment, an if, a for loop.
+
+Python 3.8 added the walrus operator — a colon followed by an equals sign. It is an assignment expression: it assigns a value to a variable and returns that value at the same time. This is useful when you want to test a value in an if condition and also use it in the body, without calling a function twice or creating a separate line just for the assignment.
+
+Summary.
+
+Arithmetic operators perform calculations. Division always returns a float; floor division always returns an integer, rounded toward negative infinity; modulo returns the remainder.
+
+Comparison operators return booleans and support chaining.
+
+Logical operators — and, or, not — use short-circuit evaluation. Or can supply default values for falsy variables.
+
+Augmented assignment operators combine arithmetic and assignment in one step.
+
+Use is and is not for identity checks, specifically for None.
+
+Use in and not in to test membership in any collection.
+
+Bitwise operators work on binary representations and are useful for flag patterns.
+
+Precedence follows a clear hierarchy; use parentheses to make intent explicit.
+
+The walrus operator assigns and returns a value in a single expression, useful in conditions.
+
+In the next notebook, we cover control flow — how Python uses comparisons and booleans to make decisions and repeat work with if statements, for loops, and while loops.
