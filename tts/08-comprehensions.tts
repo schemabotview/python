@@ -1,0 +1,83 @@
+A comprehension is a concise, readable way to build a collection from an iterable in a single expression. Instead of writing a loop, appending to a list, and returning it, you express the whole idea in one line. Python supports four forms: list comprehensions, dictionary comprehensions, set comprehensions, and generator expressions. Used well, they make code shorter and easier to read. Used poorly, they become unreadable puzzles. This notebook covers all four forms, shows where they shine, and explains when a plain loop is the better choice.
+
+List Comprehensions.
+
+A list comprehension builds a new list by applying an expression to every item in an iterable. The syntax places the expression first, then the for clause: open square bracket, the expression you want in the result, the word for, the loop variable, the word in, the iterable, and a closing bracket.
+
+Reading it left to right: produce this expression, for each item in this iterable.
+
+Compare the loop form to the comprehension form. With a loop, you create an empty list, iterate, append on each pass, and then use the result. With a comprehension, all of that is collapsed into a single line. Both produce the same output — but the comprehension makes the intent immediately visible.
+
+Any iterable works as the source: ranges, lists, strings, files, the results of calling a function. A common pattern is extracting a single field from each dictionary in a list of records — the comprehension produces a flat list of just those values.
+
+Filtering with if.
+
+Add an if clause after the for clause to include only items that satisfy a condition. The if clause acts as a filter: items for which the condition is falsy are dropped from the result entirely.
+
+You can combine transformation and filtering in the same comprehension. For example, take a dictionary of names to scores, filter to those above a threshold, and produce formatted strings from the passing entries — all in one expression.
+
+if and else in the Expression.
+
+When you want to transform every item but differently depending on a condition, put the if and else in the expression — before the for clause. This is a ternary expression applied to each item. Every item is kept; the condition only determines which of two output values is used.
+
+The position of if matters. An if clause after the for clause is a filter — it drops items. An if-else expression before the for clause is a transform — it keeps every item but produces one of two different values.
+
+Nested Loops in Comprehensions.
+
+You can include multiple for clauses in a single comprehension. The order of the for clauses reads left to right, matching the order of nested loops written out by hand — the leftmost for is the outermost loop.
+
+A classic use is computing the Cartesian product of two lists — every possible pair from both. Another is flattening a nested list: the outer for iterates over rows, and the inner for iterates over items within each row. You can attach an if clause to either for level to filter at that level of the nesting.
+
+Dictionary Comprehensions.
+
+Dictionary comprehensions build a dictionary in a single expression. The syntax is like a list comprehension but with curly braces and a key-colon-value expression before the for clause.
+
+Common uses: build a mapping of words to their lengths, invert a dictionary by swapping keys and values, build a lookup table from two parallel lists using zip, or filter a dictionary down to entries meeting a condition while optionally transforming their values.
+
+Set Comprehensions.
+
+Set comprehensions build a set. The syntax is identical to a list comprehension but with curly braces. Because the result is a set, duplicates are automatically dropped and the order of items is not guaranteed.
+
+A set comprehension is useful when you want to collect unique values derived from a collection — unique first letters of words, unique string lengths, or the union of all characters across several strings.
+
+Generator Expressions.
+
+A generator expression has the same syntax as a list comprehension but uses parentheses instead of brackets. Rather than building the entire list in memory upfront, it is lazy — it produces items one at a time on demand, only when something asks for the next value.
+
+The memory difference is dramatic. A list comprehension over a million items allocates memory for all of them at once. A generator expression for the same data uses only a tiny fixed amount of memory regardless of the collection size, because it stores only the current state of the iteration, not all the results.
+
+Use a generator expression when you only need to iterate over the results once, when the collection could be very large, or when you are passing the result directly to a function like sum, min, max, any, or all. When a generator expression is the only argument to a function, the outer parentheses can be omitted — the function call's parentheses serve double duty.
+
+Generators are lazy. Items are not produced until something consumes them. If you create a generator and never iterate it, nothing in its body ever runs. This laziness is what makes any and all efficient: any stops at the first truthy item and all stops at the first falsy item, rather than evaluating every item.
+
+Walrus Operator in Comprehensions.
+
+The walrus operator — a colon followed by an equals sign — can assign a value inside a comprehension expression and make it available for reuse. This is useful when both the filter condition and the output expression need the same computed value and the computation is expensive.
+
+A common example: strip whitespace from each string, then filter to keep only non-empty results. Without the walrus operator, you strip the string once to check if it is empty and a second time to produce the output. With the walrus operator, you strip once, assign the result to a variable, use it in the filter condition, and use the same already-computed value as the output.
+
+When to Use Comprehensions — and When Not To.
+
+Comprehensions are at their best when the logic fits on one readable line, when you are building a new collection rather than performing side effects, and when the transformation or filter is simple and clear.
+
+Reach for a plain loop when the logic is complex enough to need multiple statements or intermediate variables, when you need to break or continue mid-iteration, when the body has side effects like printing or writing to a file, or when nesting goes deeper than two levels — readability falls off quickly with depth.
+
+One specific antipattern to avoid: using a list comprehension purely for side effects. If you write a comprehension that calls print or appends to an external list on each iteration, you are building a list of None values just to throw it away. Use a for loop instead.
+
+Summary.
+
+List comprehension: square brackets, expression then for clause, optional if clause after the for to filter. If-else before the for transforms every item into one of two possible values; if after the for drops items.
+
+Dictionary comprehension: curly braces with a key-colon-value expression. Natural for inverting mappings, building lookup tables, and filtering or transforming dictionaries.
+
+Set comprehension: curly braces with a single expression. Duplicates dropped automatically.
+
+Generator expression: parentheses instead of brackets. Lazy — items produced on demand. Memory-efficient for large data and one-pass pipelines. The preferred form when feeding sum, any, all, min, or max.
+
+Multiple for clauses in a comprehension correspond to nested loops, reading left to right from outer to inner.
+
+The walrus operator inside a comprehension assigns a computed value once and reuses it in both the condition and the output, avoiding redundant computation.
+
+Comprehensions are for building collections from transformations and filters. Use a plain loop for side effects, complex multi-step logic, or anything that needs break or continue.
+
+In the next notebook, we cover error handling and exceptions — how Python signals that something went wrong, how to catch and handle those signals gracefully, and how to raise your own.

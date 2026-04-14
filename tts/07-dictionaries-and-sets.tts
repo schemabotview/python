@@ -1,0 +1,101 @@
+Sequences store items by position. Dictionaries store items by name — you look up a value by a key rather than by an index. Sets store items with no duplicates and no order, and are optimised for membership testing and mathematical set operations. Both are implemented as hash tables, which makes lookup, insertion, and deletion essentially constant time regardless of how large the collection grows. This notebook covers dictionaries and sets from the basics through to the collections module helpers that make common patterns more expressive.
+
+Dictionaries.
+
+A dictionary maps keys to values. You look up a value by providing its key — just like looking up a word in a physical dictionary.
+
+Keys must be hashable, which means immutable. Strings, numbers, and tuples of immutable items all make valid keys. Lists cannot be keys. Values can be anything at all — any Python object. Keys are unique within a dictionary; if you assign to a key that already exists, the new value replaces the old one. As of Python 3.7, dictionaries maintain the order in which keys were inserted.
+
+The most common way to create a dictionary is the literal syntax: curly braces containing key-colon-value pairs separated by commas. You can also use the dict constructor with keyword arguments, or pass it a list of two-item tuples.
+
+Accessing and Modifying Values.
+
+You access a value by placing its key in square brackets after the dictionary name. If the key is not present, Python raises a KeyError. To access a key that might not be there without risking an error, use the get method. Get returns None by default if the key is missing, or a fallback value you provide as the second argument.
+
+Adding a new key-value pair and updating an existing one use exactly the same syntax: square brackets on the left side of an assignment. Python checks whether the key exists and either adds or replaces as needed.
+
+To remove a key, use the del statement. The pop method removes a key and returns its value. Like get, pop accepts an optional default to return if the key is absent, which prevents the KeyError.
+
+Iterating Over Dictionaries.
+
+Iterating over a dictionary directly yields its keys. You can also call the keys method, the values method, or the items method explicitly. All three return view objects — live windows into the dictionary that reflect any changes made after the view was created.
+
+The items method is the most useful of the three. It yields pairs of key and value on each iteration, which you unpack directly in the for line. This is the standard pattern for processing both the key and the value together.
+
+Membership testing with the in operator checks keys, not values. To check whether a value exists in the dictionary, use in on the result of the values method.
+
+Merging and Updating Dictionaries.
+
+The update method merges another dictionary into the current one in place. If both dictionaries have the same key, the right-hand dictionary's value wins. For a non-mutating merge that produces a new dictionary, Python 3.9 introduced the pipe operator. The pipe-equals operator does the same merge in place. The right-hand side wins on conflicts in both cases.
+
+A common pattern is to start with a dictionary of defaults and merge in overrides, so that any explicitly provided value takes precedence over the default.
+
+Useful Dictionary Methods.
+
+The setdefault method returns the value for a key if it exists. If the key is missing, it inserts the key with a given default value and returns that default. Crucially, it does not overwrite an existing value — it only inserts when the key is absent. This makes it useful for initialising a key the first time you encounter it, without disturbing it on subsequent calls.
+
+The clear method removes all items from the dictionary. The copy method returns a shallow copy.
+
+Dictionary Comprehensions.
+
+Just as list comprehensions build lists concisely, dictionary comprehensions build dictionaries. The syntax uses curly braces with a key-colon-value expression, followed by a for clause and an optional if clause.
+
+You can use a comprehension to build a mapping of numbers to their squares, to invert a dictionary by swapping keys and values, or to filter a dictionary down to entries that meet a condition — for example, keeping only students whose score is above a threshold.
+
+Nested Dictionaries.
+
+Dictionary values can themselves be dictionaries. This is the natural way to represent structured hierarchical data — configuration, API responses, user records. You access nested values by chaining square brackets. The safe navigation pattern chains get calls instead, passing an empty dictionary as the fallback at each level so that a missing intermediate key does not raise an error.
+
+defaultdict and Counter.
+
+The collections module provides two dictionary subclasses that handle very common patterns.
+
+defaultdict works like a regular dictionary, but instead of raising a KeyError when a missing key is accessed, it automatically inserts a default value and returns it. You create a defaultdict by passing a callable — the factory — to the constructor. When a missing key is accessed, Python calls the factory with no arguments and uses the result as the default. Passing the list type means missing keys get an empty list. Passing int means missing keys get zero.
+
+The classic use case is grouping items. Without defaultdict, every group-append pattern needs an explicit check: if the key is not in the dictionary, create an empty list, then append. With defaultdict of list, you skip the guard entirely — just append, and the empty list is created automatically on the first access.
+
+Counter is a dictionary subclass designed for counting. Pass it any iterable and it tallies the occurrences of each item. The result is a dictionary whose keys are items and whose values are counts. The most common method returns a list of the top n items sorted by frequency. Accessing a key that was never counted returns zero rather than raising a KeyError. Counter works on any iterable — words in a string, characters in a word, elements in a list.
+
+Sets.
+
+A set is an unordered collection of unique items. Duplicates are silently discarded when a set is created or when you add an item that is already present. Sets are implemented as hash tables, so the in operator runs in constant time regardless of the set's size.
+
+Use a set when you need to eliminate duplicates, when you need fast membership testing, or when you need to compute relationships between collections such as what two groups have in common or what one group has that the other does not.
+
+The literal syntax for a set uses curly braces with comma-separated values but no colons. The set constructor converts any iterable, deduplicating as it goes. The most important gotcha: an empty pair of curly braces creates an empty dictionary, not an empty set. To create an empty set, you must use the set constructor with no arguments.
+
+Adding and Removing Items.
+
+The add method adds a single item. If the item is already present, the call has no effect. The update method adds all items from any iterable — it is to add what extend is to append for lists.
+
+The remove method removes a specific item and raises a KeyError if it is not present. The discard method does the same but silently does nothing if the item is absent. The pop method removes and returns an arbitrary item — because sets are unordered, you cannot predict which one will be returned.
+
+Set Operations.
+
+Sets support the four standard mathematical operations.
+
+Union combines two sets into one containing every item that appears in either. The operator is a single vertical bar, or you can call the union method.
+
+Intersection produces a new set containing only the items that appear in both sets. The operator is an ampersand, or you can call the intersection method.
+
+Difference produces a new set with the items from the left set that are not in the right set. The operator is a minus sign, or you can call the difference method. Note that difference is not symmetric: a minus b and b minus a give different results.
+
+Symmetric difference produces items that are in one set or the other but not in both — the opposite of intersection. The operator is a caret, or you can call the symmetric difference method.
+
+All four operations also have in-place versions using the augmented assignment operators, which modify the left set directly.
+
+Set Comparisons.
+
+You can test relationships between sets. A set is a subset of another if every item it contains also appears in the other. The less-than-or-equal operator tests for subset. The less-than operator tests for proper subset — subset but not equal. Greater-than and greater-than-or-equal test for superset relationships. The isdisjoint method returns True if two sets share no items at all.
+
+frozenset.
+
+A frozenset is an immutable set. You cannot add or remove items after creation. Because it is immutable it is also hashable, which means it can be used as a dictionary key or as an element inside another set — something a regular mutable set cannot do. All the read-only set operations — union, intersection, difference, subset checks — work on frozensets and return frozensets.
+
+Summary.
+
+Dictionaries map keys to values. Keys must be hashable and are unique. Insertion order is preserved. Access safely with get to avoid KeyError. Merge with update or the pipe operator introduced in Python 3.9. Use setdefault to initialise a key only when it is absent. Dictionary comprehensions build dictionaries with a key-colon-value expression inside curly braces. defaultdict auto-inserts defaults for missing keys; Counter tallies occurrences and handles missing keys as zero.
+
+Sets are unordered collections of unique hashable items. Create with curly braces or the set constructor — empty curly braces make a dict, not a set. Use add, discard, and update to modify. The four set operations — union, intersection, difference, and symmetric difference — each have both an operator and a method form. Test subset and superset relationships with comparison operators. frozenset is the immutable, hashable variant.
+
+In the next notebook, we cover comprehensions — the concise, readable syntax for building lists, dictionaries, sets, and generators in a single expression.
