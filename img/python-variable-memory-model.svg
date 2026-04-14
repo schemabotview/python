@@ -1,0 +1,84 @@
+<svg viewBox="0 0 560 245" width="560" height="245" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .bg         { fill: #f9f9f8; }
+      .ns-fill    { fill: #f3f3f0; }  .ns-stroke  { stroke: #d1d1cb; }  .ns-text  { fill: #1a1a18; }
+      .str-fill   { fill: #fdf4ff; }  .str-stroke { stroke: #d946ef; }  .str-text { fill: #86198f; }  .str-sub { fill: #a21caf; }
+      .int-fill   { fill: #d1fae5; }  .int-stroke { stroke: #6ee7b7; }  .int-text { fill: #065f46; }  .int-sub { fill: #059669; }
+      .flt-fill   { fill: #eeeeff; }  .flt-stroke { stroke: #818cf8; }  .flt-text { fill: #3730a3; }  .flt-sub { fill: #6366f1; }
+      .arr-stroke { stroke: #9b9b92; fill: none; }
+      .arr-head   { fill: #9b9b92; }
+      .muted      { fill: #9b9b92; }
+      .lbl        { font-family: system-ui, sans-serif; }
+      @media (prefers-color-scheme: dark) {
+        .bg         { fill: #222220; }
+        .ns-fill    { fill: #2a2a27; }  .ns-stroke  { stroke: #484844; }  .ns-text  { fill: #f0f0ec; }
+        .str-fill   { fill: #2d0a38; }  .str-stroke { stroke: #d946ef; }  .str-text { fill: #f0abfc; }  .str-sub { fill: #e879f9; }
+        .int-fill   { fill: #052e16; }  .int-stroke { stroke: #22c55e; }  .int-text { fill: #bbf7d0; }  .int-sub { fill: #4ade80; }
+        .flt-fill   { fill: #1e1b4b; }  .flt-stroke { stroke: #818cf8; }  .flt-text { fill: #c7d2fe; }  .flt-sub { fill: #a5b4fc; }
+        .arr-stroke { stroke: #6b6b65; fill: none; }
+        .arr-head   { fill: #6b6b65; }
+        .muted      { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="ref-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/>
+    </marker>
+  </defs>
+
+  <rect width="560" height="245" rx="10" class="bg" stroke="none"/>
+
+  <!-- Section headers -->
+  <text x="98" y="20" font-size="9" font-weight="700" text-anchor="middle" class="lbl muted">Namespace  (names)</text>
+  <text x="393" y="20" font-size="9" font-weight="700" text-anchor="middle" class="lbl muted">Heap  (objects)</text>
+
+  <!-- Namespace box -->
+  <rect x="10" y="28" width="175" height="205" rx="7" class="ns-fill ns-stroke" stroke-width="1.3"/>
+
+  <!-- Name labels -->
+  <text x="24" y="68" font-size="9" font-weight="700" class="lbl ns-text">city</text>
+  <text x="24" y="112" font-size="9" font-weight="700" class="lbl ns-text">population</text>
+  <text x="24" y="148" font-size="9" font-weight="700" class="lbl ns-text">alias</text>
+  <text x="24" y="160" font-size="7.5" class="lbl muted">(= population)</text>
+  <text x="24" y="200" font-size="9" font-weight="700" class="lbl ns-text">area_km2</text>
+
+  <!-- Dashed pointer lines (inside namespace) -->
+  <line x1="52"  y1="63"  x2="178" y2="63"  stroke-width="0.8" stroke-dasharray="2,2" class="arr-stroke"/>
+  <line x1="96"  y1="107" x2="178" y2="107" stroke-width="0.8" stroke-dasharray="2,2" class="arr-stroke"/>
+  <line x1="52"  y1="143" x2="178" y2="143" stroke-width="0.8" stroke-dasharray="2,2" class="arr-stroke"/>
+  <line x1="85"  y1="195" x2="178" y2="195" stroke-width="0.8" stroke-dasharray="2,2" class="arr-stroke"/>
+
+  <!-- Reference arrows from namespace to heap objects -->
+  <line x1="185" y1="63"  x2="249" y2="63"  stroke-width="1.3" class="arr-stroke" marker-end="url(#ref-arr)"/>
+  <line x1="185" y1="107" x2="249" y2="120" stroke-width="1.3" class="arr-stroke" marker-end="url(#ref-arr)"/>
+  <line x1="185" y1="143" x2="249" y2="137" stroke-width="1.3" class="arr-stroke" marker-end="url(#ref-arr)"/>
+  <line x1="185" y1="195" x2="249" y2="199" stroke-width="1.3" class="arr-stroke" marker-end="url(#ref-arr)"/>
+
+  <!-- str object: y=42, h=48 -->
+  <rect x="252" y="42" width="296" height="48" rx="5" class="str-fill str-stroke" stroke-width="1.2"/>
+  <line x1="300" y1="42" x2="300" y2="90" stroke-width="0.8" class="str-stroke"/>
+  <text x="276" y="63" font-size="9" font-weight="700" text-anchor="middle" class="lbl str-text">str</text>
+  <text x="276" y="76" font-size="7.5" text-anchor="middle" class="lbl muted">type</text>
+  <text x="316" y="60" font-size="9" font-weight="700" class="lbl str-sub">"Tokyo"</text>
+  <text x="316" y="76" font-size="7.5" class="lbl muted">id: 0x7fa3b8  ·  refs: 1</text>
+
+  <!-- int object: y=104, h=60 -->
+  <rect x="252" y="104" width="296" height="60" rx="5" class="int-fill int-stroke" stroke-width="1.2"/>
+  <line x1="300" y1="104" x2="300" y2="164" stroke-width="0.8" class="int-stroke"/>
+  <text x="276" y="129" font-size="9" font-weight="700" text-anchor="middle" class="lbl int-text">int</text>
+  <text x="276" y="142" font-size="7.5" text-anchor="middle" class="lbl muted">type</text>
+  <text x="316" y="122" font-size="9" font-weight="700" class="lbl int-sub">13_960_000</text>
+  <text x="316" y="136" font-size="7.5" class="lbl muted">id: 0x7fa4c0  ·  refs: 2</text>
+  <text x="316" y="150" font-size="7.5" class="lbl int-sub">← two names, one object</text>
+
+  <!-- float object: y=178, h=48 -->
+  <rect x="252" y="178" width="296" height="48" rx="5" class="flt-fill flt-stroke" stroke-width="1.2"/>
+  <line x1="300" y1="178" x2="300" y2="226" stroke-width="0.8" class="flt-stroke"/>
+  <text x="276" y="199" font-size="9" font-weight="700" text-anchor="middle" class="lbl flt-text">float</text>
+  <text x="276" y="212" font-size="7.5" text-anchor="middle" class="lbl muted">type</text>
+  <text x="316" y="196" font-size="9" font-weight="700" class="lbl flt-sub">2_194.0</text>
+  <text x="316" y="210" font-size="7.5" class="lbl muted">id: 0x7fa512  ·  refs: 1</text>
+
+  <!-- Footer -->
+  <text x="280" y="237" font-size="7.5" text-anchor="middle" class="lbl muted">Objects carry their type — that is how dynamic typing works at run-time</text>
+</svg>
