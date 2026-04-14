@@ -1,0 +1,103 @@
+Things go wrong at runtime — a file is missing, a user types letters where a number is expected, a network request times out. Python uses exceptions to signal these events. An exception interrupts normal execution and travels up the call stack until something catches it or the program crashes with a traceback. Understanding exceptions means writing programs that fail gracefully rather than abruptly, give useful error messages rather than cryptic tracebacks, and clean up resources reliably even when things go wrong. This notebook covers catching exceptions, raising them, chaining them, building custom exception types, and the design philosophy behind when to use each approach.
+
+The Exception Hierarchy.
+
+Every built-in exception is a class. They form a hierarchy rooted at BaseException. The vast majority of exceptions you will deal with day-to-day inherit from Exception, which itself inherits from BaseException.
+
+A few special exceptions inherit directly from BaseException rather than Exception: KeyboardInterrupt, which fires when the user presses Control-C; SystemExit, which fires when the program calls sys.exit; and GeneratorExit, which fires when a generator is closed. You almost never want to catch these by accident. When you write except Exception, you catch everything useful without accidentally swallowing these three.
+
+Because exceptions are classes, catching a parent class also catches all its subclasses. LookupError is the parent of both IndexError and KeyError, so catching LookupError handles both. This inheritance relationship is what makes the hierarchy useful.
+
+Common Built-in Exceptions.
+
+A few exceptions appear constantly in Python code. TypeError fires when you apply an operation to the wrong type — for example, trying to add a string and a number. ValueError fires when the type is right but the value is not acceptable — passing the string "hello" to the int function. IndexError fires when you try to access a sequence position that does not exist. KeyError fires when you try to access a dictionary key that is not present. ZeroDivisionError fires when you divide by zero. AttributeError fires when you access an attribute or method that the object does not have. FileNotFoundError fires when you try to open a file that does not exist. NameError fires when you reference a variable that has not been defined.
+
+Try and Except.
+
+The try block contains code that might raise an exception. If an exception occurs, Python immediately stops executing the rest of the try block and looks for a matching except clause. If a match is found, the except block runs. If no match is found, the exception propagates up the call stack to the caller.
+
+Always catch the most specific exception you can. Catching the broad Exception class is a last resort — it hides bugs you would otherwise want to know about and makes programs much harder to debug.
+
+Use the as keyword in the except clause to bind the exception object to a name. The exception object has a string representation that is the error message, and it may have additional attributes depending on the exception type.
+
+Multiple Except Clauses.
+
+A single try block can have multiple except clauses. Python tries each one in order from top to bottom and runs the first that matches. Put more specific exceptions before more general ones in the list — if you put a broad exception first, the specific ones below it will never be reached because the broad one catches everything first.
+
+You can catch multiple exception types in a single except clause by listing them in a tuple. This is useful when two different exception types call for the same response.
+
+Else and Finally.
+
+The full try statement can have four clauses: try, except, else, and finally.
+
+The else clause runs only if the try block completed without raising any exception. It separates the happy path from the error handling, making it clear which code is success-only logic and which code is cleanup or error response.
+
+The finally clause runs always — whether an exception was raised or not, whether it was caught or not, and even if a return statement was executed inside the try block. Use finally to release resources: close a file handle, release a lock, disconnect from a database. Before context managers became the standard approach, finally was the primary way to guarantee cleanup.
+
+A common demonstration: if you open a file in the try block and an exception occurs before you close it, the finally clause ensures the file gets closed regardless. Even if the exception propagates out of the function entirely, finally still executes on the way out.
+
+Raising Exceptions.
+
+Use the raise statement to signal an error from your own code. You can raise an exception class — Python will instantiate it — or raise an already-created exception instance. To re-raise the current exception without changing it, use bare raise with no argument. This preserves the original traceback, which is important for debugging.
+
+Raise an exception when a precondition is violated — the caller passed input that cannot be processed. Raise when an operation cannot be completed in a meaningful way. Raise when you want to convert a low-level implementation exception into a higher-level one that makes more sense to the caller.
+
+When choosing which exception type to raise, use the most semantically correct built-in type. Wrong type passed in: TypeError. Valid type but bad value: ValueError. Something not found: KeyError or a custom subclass. An operation that is not supported in the current state: RuntimeError or a custom exception.
+
+Exception Chaining.
+
+When you catch one exception and raise another, Python automatically records the relationship. The original exception is stored in the new exception's context attribute. You can also be explicit about the relationship using raise-from syntax: raise the new exception from the original. This makes the traceback show both exceptions and the causal link between them, which is very helpful for debugging.
+
+Sometimes you want to raise a new exception but hide the original one — for example, to expose a clean public API that does not reveal internal implementation details. Use raise-from-None to suppress the original traceback. Only the new exception appears in the output.
+
+Custom Exceptions.
+
+Define your own exception classes by subclassing Exception or one of its subclasses. Custom exceptions let callers catch errors from your code specifically, without accidentally catching unrelated exceptions from other parts of the program.
+
+Name exception classes with an Error suffix — ValidationError, AuthError, PaymentError. For a library or module, create a single base exception class and then subclass it for specific cases. This gives callers two choices: catch the base class to handle any error from your module, or catch a specific subclass to respond differently to different failure modes.
+
+Keep exception classes lightweight. A docstring describing when it is raised is always helpful. Add instance attributes only when the caller genuinely needs structured information to respond differently. For example, an InsufficientFundsError might carry the balance and the required amount as attributes, because the caller might want to display the shortfall to the user.
+
+EAFP versus LBYL.
+
+There are two philosophies for dealing with potential errors.
+
+Look Before You Leap — LBYL — means checking for the condition before attempting the operation. If the key is in the dictionary, access it. If the file exists, open it.
+
+Easier to Ask Forgiveness than Permission — EAFP — means just trying the operation and handling the exception if it fails. Try to access the key, catch the KeyError if it is missing.
+
+Python's culture leans toward EAFP, for a few reasons. First, race conditions: in the LBYL approach, the check and the operation are two separate steps, and in concurrent code the state can change between them. A file can be deleted between the exists check and the open call. With EAFP, the operation either succeeds or it does not, atomically from the program's perspective. Second, performance: when the happy path is common, EAFP has no overhead on success. The check in LBYL costs something every time even when the condition is always true. Third, readability: Python code that tries first and handles failure tends to be flatter and less nested than code that checks every precondition before acting.
+
+LBYL is still appropriate for simple, non-concurrent situations where an if check reads more naturally and the condition cannot change between the check and the operation.
+
+Exception Best Practices.
+
+A few rules keep error handling clean and useful.
+
+Catch specific exceptions. A bare except clause with no exception type catches absolutely everything, including SystemExit and KeyboardInterrupt, which should almost never be suppressed. Catching the broad Exception class without good reason hides bugs that would otherwise be obvious.
+
+Keep try blocks small. Wrap only the lines that can actually raise the exception you are handling. A large try block around many operations makes it unclear which line caused the exception and makes it easy to accidentally handle an exception you did not intend to.
+
+Include context in error messages. An error message that says just "invalid value" is unhelpful. An error message that says "port must be between 1 and 65535, got 99999" tells the user exactly what went wrong and what the valid range is.
+
+Use the logging module rather than print for production error handling. Logging integrates with the rest of the application's observability infrastructure and lets you control verbosity at runtime without changing the code.
+
+Summary.
+
+Python exceptions are classes in a hierarchy rooted at BaseException. Catch Exception or its subclasses; avoid catching BaseException directly.
+
+Try and except wrap risky code and handle specific failures. Use as to bind the exception object. Multiple except clauses are tried in order — put specific exceptions before general ones. Catch multiple types in a single clause with a tuple.
+
+The else clause runs only when no exception was raised. The finally clause runs always, making it the right place for cleanup code.
+
+Raise to signal errors from your own code. Bare raise re-raises the current exception unchanged. Choose the appropriate built-in exception type based on what went wrong semantically.
+
+Exception chaining links a new exception to the original cause with raise-from. Use raise-from-None to produce a clean public-facing exception that hides internal details.
+
+Custom exceptions subclass Exception, use an Error suffix, and form a hierarchy with a module-level base class. Add attributes only when callers need structured information.
+
+EAFP is the preferred Python style: try the operation, handle failure with except. It is race-condition-safe, faster on the happy path, and more idiomatic than checking preconditions.
+
+Keep try blocks small, catch specific exceptions, include context in messages, and use logging in production.
+
+In the next notebook, we cover object-oriented programming — how to define classes, organise data and behaviour together, and model your problem domain with custom types.

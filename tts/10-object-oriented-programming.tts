@@ -1,0 +1,107 @@
+Object-oriented programming is a way of organising code around the things your program works with rather than the steps it takes. You define classes — blueprints that bundle together data and behaviour — and create instances of those classes to represent concrete objects. The result is code that models the problem domain more directly, is easier to extend without breaking existing parts, and keeps related logic together rather than scattered. This notebook covers everything from defining a basic class through inheritance, properties, dunder methods, and dataclasses.
+
+Classes and Instances.
+
+A class is a blueprint. An instance is a concrete object built from that blueprint. Every value in Python is already an instance of some class: the integer 42 is an instance of int, the string "hello" is an instance of str, a list is an instance of list.
+
+You define a class with the class keyword, followed by the class name and a colon. Inside the class body, you define methods — functions that belong to the class.
+
+The double-underscore-init double-underscore method is the initialiser. It runs automatically when a new instance is created and sets up the object's initial state. The first parameter of every instance method is self, which refers to the instance itself. Python passes it automatically — you never supply it manually when calling a method.
+
+Inside the initialiser, you attach data to the instance by assigning to self dot something. These are called instance attributes. Each instance gets its own independent copy of these attributes.
+
+Once you have defined the class, you create instances by calling it like a function. Each call creates a brand new object with its own state. Modifying one instance's attributes does not affect any other instance.
+
+Class Attributes versus Instance Attributes.
+
+Instance attributes are set on self — they belong to a specific object. Class attributes are defined directly in the class body, outside any method — they belong to the class itself and are shared by all instances.
+
+When you read an attribute on an instance, Python checks the instance's own dictionary first, then the class. So an instance can shadow a class attribute by creating its own with the same name. Writing to an attribute on an instance always creates or updates the instance's copy — the class attribute is never touched by an assignment on an instance.
+
+Class attributes are useful for values that are the same for every instance — constants, configuration, counters. A class-level counter that increments every time a new instance is created is a common pattern.
+
+classmethod and staticmethod.
+
+The classmethod decorator defines a method that receives the class itself as its first argument, conventionally named cls, rather than an instance. The most common use is alternative constructors — factory methods that create instances from different kinds of input. For example, a Temperature class might have a regular initialiser that takes Celsius, but also a from_fahrenheit classmethod and a from_kelvin classmethod. All three create Temperature instances; they just accept different input formats.
+
+The staticmethod decorator defines a method that receives no implicit first argument at all — neither the instance nor the class. It is a plain function that lives inside the class because it is logically related, but it does not need access to any instance or class state. Validation helpers and pure utility functions are natural staticmethods.
+
+Properties.
+
+A property lets you expose an attribute-like interface while running custom logic behind the scenes. From the outside, the caller accesses it like an attribute — no parentheses, no method call syntax. Behind the scenes, you can validate the value, compute it dynamically, or raise an error if something is wrong.
+
+The property decorator marks a method as the getter. The corresponding setter is defined with the name dot setter decorator. The deleter uses the name dot deleter decorator.
+
+This is how Python implements encapsulation cleanly. Start with a plain attribute. If you later need validation or computed behaviour, convert it to a property. Because the public access syntax does not change — it is still dot name, not dot name with parentheses — none of the code that uses the class needs to change.
+
+A practical example: a Circle class with a radius attribute. The setter validates that the value is not negative. A read-only area property computes the area from the radius without storing a separate value. A diameter property has both a getter and a setter — the setter sets the diameter by updating the radius, which routes through the radius setter for validation automatically.
+
+Dunder Methods.
+
+Dunder methods — double underscore on both sides of the name — let your objects respond to built-in Python operations. They make custom classes behave like first-class Python citizens.
+
+The repr method is called by repr and by the interactive prompt. Its output should be unambiguous — ideally a string that could be evaluated to recreate the object. The str method is called by print and str. Its output can be more readable and human-friendly.
+
+The add method implements the plus operator. Sub implements minus. Mul implements multiplication. Eq implements the double-equals comparison. Lt implements less-than. Abs implements the built-in abs function. Bool implements the truthiness check used by if statements and the bool function.
+
+The len method makes the built-in len function work on your object. The contains method makes the in operator work. Getitem makes square-bracket indexing work. Iter makes the object work in for loops and anywhere else an iterator is expected.
+
+Implementing these methods is what allows you to write code like: for song in playlist, or if song in playlist, or len of playlist — exactly the same syntax Python uses for built-in types.
+
+Encapsulation.
+
+Python has no private keyword. Everything is technically accessible from outside the class. Instead, the community uses naming conventions to signal intent.
+
+A single leading underscore signals conventional privacy. The attribute is meant for internal use. You can access it from outside the class, but you are breaking the contract — the name might change in the next version without warning.
+
+A double leading underscore triggers name mangling. Python rewrites the name at compile time by prepending the class name with a leading underscore. An attribute named double-underscore-secret defined in class Foo becomes accessible as underscore-Foo-double-underscore-secret. This is not true privacy — you can still access it if you know the mangled name. Its purpose is to prevent accidental name collisions in inheritance hierarchies, where a subclass might accidentally define an attribute with the same name as one in the parent.
+
+Inheritance.
+
+Inheritance lets one class build on another. The subclass inherits all the parent's methods and attributes. You specify the parent in parentheses after the class name.
+
+Calling super returns a proxy object that delegates method calls to the parent class. In the subclass's initialiser, call super dot init to run the parent's initialiser first, then add the subclass's own attributes. In any overridden method, calling super dot the same method name runs the parent's version — you can then add extra behaviour before or after.
+
+Use isinstance to check whether an object is an instance of a class or any of its parents. Use type-is to check for the exact class only. issubclass checks the relationship between two classes.
+
+The core use of inheritance is modelling is-a relationships. A Dog is an Animal. A SavingsAccount is a BankAccount. For has-a relationships — a Car has an Engine — use composition instead: store the Engine as an attribute of the Car, rather than inheriting from it.
+
+Multiple Inheritance and MRO.
+
+Python allows a class to inherit from more than one parent by listing them all in the parentheses. When the same method name exists in multiple parents, Python determines which one to use via the Method Resolution Order, or MRO. This is a deterministic algorithm — C3 linearisation — that searches parents left to right and ensures each class in the hierarchy appears only once.
+
+You can inspect the MRO of any class by accessing its double-underscore-mro double-underscore attribute.
+
+The most legitimate use of multiple inheritance is mixins — small, focused classes that add a specific capability. A JSONMixin might add a to_json method. A TimestampMixin might record a creation timestamp. A User class can inherit from both without either mixin representing a meaningful standalone concept. The key to making mixins work correctly with multiple inheritance is cooperative use of super — every class in the chain passes along any arguments it does not consume, so the full chain initialises correctly.
+
+Dataclasses.
+
+The dataclass decorator, introduced in Python 3.7, auto-generates the initialiser, repr, and equality methods from a class's annotated fields. This eliminates the boilerplate for classes that are primarily data containers.
+
+You define fields by writing the name, a colon, and the type annotation. The decorator generates an initialiser that accepts all those fields as arguments. If you want a default value, assign it after the type annotation. For mutable defaults — lists, dicts — never use a literal as the default. Instead, use field with a default_factory argument, which calls the factory to produce a fresh object for each instance.
+
+Passing order equals True to the dataclass decorator generates the full set of comparison methods — less-than, less-than-or-equal, greater-than, and greater-than-or-equal — based on the order of the fields. This means you can sort a list of these objects directly.
+
+Passing frozen equals True makes instances immutable. Attempting to set an attribute after creation raises a FrozenInstanceError. Frozen dataclasses are also hashable, which means they can be used as dictionary keys or as elements in a set.
+
+Summary.
+
+A class is a blueprint; an instance is a concrete object. The init method sets up initial state. Self is the instance, passed automatically.
+
+Instance attributes live on self — unique per object. Class attributes live on the class — shared by all instances.
+
+classmethod receives the class and is used for alternative constructors. staticmethod receives nothing and is a plain helper namespaced in the class.
+
+The property decorator exposes attribute-like access with getter and setter logic. Start with plain attributes; upgrade to properties when validation or computation is needed without changing the public API.
+
+Dunder methods make objects respond to built-in operations. Implement repr for debugging, str for display, and others to integrate with Python's operators and functions.
+
+Single leading underscore is conventional private. Double leading underscore triggers name mangling for collision avoidance in inheritance.
+
+Inheritance models is-a relationships. Use super to call the parent's implementation. Use isinstance to check the hierarchy.
+
+Multiple inheritance is resolved via the MRO. Mixins are the common legitimate use — small composable capabilities added without deep hierarchies.
+
+The dataclass decorator generates init, repr, and eq from annotated fields. Use field with default_factory for mutable defaults. order equals True adds comparisons. frozen equals True makes instances immutable and hashable.
+
+In the next notebook, we go deeper into object-oriented programming — abstract base classes, protocols, multiple inheritance patterns, slots, and more advanced class machinery.
