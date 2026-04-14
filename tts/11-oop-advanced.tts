@@ -1,0 +1,123 @@
+The previous notebook covered the foundations of object-oriented programming in Python. This one goes deeper — into the machinery that professional Python libraries are built with. Abstract base classes enforce interface contracts. Protocols bring structural subtyping. Slots cut memory usage. Descriptors are the mechanism behind properties and classmethods. Context managers let objects manage resources with the with statement. Metaclasses control class creation itself. These tools rarely appear in application code written from scratch, but you will encounter them frequently when reading framework code, and occasionally need them when building reusable libraries.
+
+Abstract Base Classes.
+
+An abstract base class defines an interface — a set of methods that every concrete subclass must implement. If a subclass inherits from the ABC but does not implement all the abstract methods, Python raises a TypeError when you try to instantiate it. The error is caught at construction time, not when the missing method is first called.
+
+You create an ABC by inheriting from the ABC class in the abc module, and you mark methods as abstract with the abstractmethod decorator. The ABC can also have concrete methods — methods with a real implementation — that subclasses inherit and can use or override.
+
+Abstract base classes formalise the contract between a base class and its subclasses. They are the Python equivalent of interfaces in Java. The key benefit is that the error surfaces immediately when you create an incomplete subclass, not later at runtime when you first call the missing method.
+
+Abstract properties combine the property decorator with abstractmethod. Both decorators must be applied, with abstractmethod as the inner decorator. Subclasses must implement the property, not just a regular attribute.
+
+Because ABCs are still classes, isinstance works with them. Checking whether an object is an instance of the ABC returns True for any concrete subclass, which is useful for writing functions that accept any implementation of the interface.
+
+Protocols and Structural Subtyping.
+
+ABCs enforce a contract through explicit inheritance. Protocols take a completely different approach. A class satisfies a Protocol simply by having the right attributes and methods — it does not need to inherit from anything. This is called structural subtyping, and it formalises what Python programmers have always called duck typing: if it walks like a duck and quacks like a duck, it is a duck.
+
+Protocols are defined by inheriting from Protocol in the typing module. The methods and attributes listed in the Protocol body define the required interface. Any class that has those methods with compatible signatures satisfies the Protocol, regardless of its inheritance chain.
+
+This is most useful with static type checkers like mypy. Type annotations that reference Protocols let the type checker verify that objects passed to a function have the required capabilities, without forcing you to change the class hierarchy.
+
+The runtime_checkable decorator enables isinstance checks against a Protocol at runtime. Without it, Protocols are purely a static typing tool.
+
+Slots.
+
+By default, every Python instance stores its attributes in a dictionary, stored on the instance itself. This is extremely flexible but uses significant memory — the dictionary overhead adds up when you have millions of instances.
+
+Declaring slots replaces the per-instance dictionary with a fixed set of named slots, similar to fields in a C struct. You declare them by assigning a tuple of strings to the dunder-slots attribute in the class body.
+
+The benefits are substantial: roughly thirty to fifty percent lower memory per instance because there is no dictionary overhead, and slightly faster attribute access because Python can use a fixed offset rather than a hash lookup. Slots also prevent typos — assigning an attribute name that is not in the slots list raises an AttributeError immediately.
+
+The trade-off is that you cannot add arbitrary attributes at runtime. If you need to add an attribute that is not in the slots list, you will get an error. For objects that have a well-defined, fixed set of attributes — which is most of them — this is not a limitation at all.
+
+Descriptors.
+
+A descriptor is any object that defines one or more of three methods: dunder-get, dunder-set, or dunder-delete. When a descriptor is assigned as a class attribute, Python calls those methods whenever the attribute is accessed, assigned, or deleted on an instance of that class.
+
+Descriptors are the underlying mechanism that makes properties, classmethods, staticmethods, and slots work. Understanding descriptors means understanding how Python's attribute lookup actually functions at its core.
+
+A data descriptor defines both dunder-get and dunder-set. A non-data descriptor defines only dunder-get. The difference matters for priority: a data descriptor takes precedence over anything in the instance's dictionary, whereas the instance dictionary takes precedence over a non-data descriptor.
+
+Python 3.6 added dunder-set-name, which is called on the descriptor when the containing class is defined, and passes the name the descriptor was assigned to. This lets the descriptor store its own attribute name, which it needs to store and retrieve values from the instance.
+
+The Validated descriptor is a good practical example. It validates that a numeric value falls within a specified range whenever it is assigned. Every assignment on an instance calls dunder-set on the descriptor, which checks the range and either stores the value or raises a ValueError. The dunder-get method retrieves the stored value. One descriptor class handles validation for any attribute on any class — you just declare it as a class attribute with the appropriate range arguments.
+
+Context Managers.
+
+The with statement calls dunder-enter when execution enters the block and dunder-exit when execution leaves — whether by reaching the end normally, hitting a return statement, or raising an exception.
+
+Dunder-enter runs setup code and returns the value that will be bound by the as clause. If you do not need to provide a value to the with block, you can return self or return None.
+
+Dunder-exit receives three arguments after self: the exception type, the exception value, and the traceback. All three are None if no exception occurred. If you return a truthy value from dunder-exit, the exception is suppressed and execution continues after the with block. If you return False or None, the exception propagates normally.
+
+The Timer context manager is a simple example: dunder-enter records the start time; dunder-exit records the elapsed time. The with block runs whatever code you want to time, and the elapsed time is available on the timer object after the block finishes, whether or not an exception occurred.
+
+A database connection context manager shows the pattern for resource management: connect in dunder-enter, disconnect in dunder-exit. The disconnection is guaranteed to happen regardless of how the with block exits.
+
+The contextlib module provides a contextmanager decorator that lets you write a context manager as a generator function. Everything before the yield statement runs as dunder-enter. Everything after runs as dunder-exit. Wrapping the yield in a try-finally ensures cleanup happens even if the body raises.
+
+dunder-new — Controlling Instance Creation.
+
+The dunder-init method initialises an instance that already exists. The dunder-new method is called before dunder-init and is responsible for creating the instance in the first place.
+
+Overriding dunder-new lets you control what object gets created. The most common use cases are the Singleton pattern, instance caching, and subclassing immutable types.
+
+Dunder-new is a static method, though you do not need to mark it with the staticmethod decorator — Python handles that automatically. It receives the class as its first argument and must return an instance. If it returns an instance of the class, Python calls dunder-init on that instance automatically.
+
+For the Singleton pattern, dunder-new checks whether an instance already exists and returns it if so, or creates one if not. Every call to the class returns the same object.
+
+Subclassing immutable types like int, str, or tuple requires dunder-new because their value is set when the object is created, not in dunder-init. You intercept the creation in dunder-new, validate or transform the value, and then call the parent's dunder-new with the processed value.
+
+dunder-init-subclass.
+
+The dunder-init-subclass method is a hook that is called on the parent class whenever a new subclass is defined. This lets the parent register, validate, or modify the subclass without needing a full metaclass.
+
+Arguments passed in the class statement alongside the base class name — like name equals "json" — are forwarded as keyword arguments to dunder-init-subclass.
+
+A plugin registry is a natural use case. The base Plugin class defines dunder-init-subclass to register each subclass in a shared dictionary, using either an explicit name argument or the subclass name lowercased by default. Any code that defines a subclass of Plugin is automatically registered — there is no separate registration step.
+
+This approach is cleaner than a metaclass for this pattern. The logic lives in the base class and is easy to understand.
+
+Metaclasses.
+
+A metaclass is a class whose instances are classes. Just as a regular class controls how its instances are created and what they look like, a metaclass controls how classes are created and what they look like.
+
+When Python executes a class statement, it calls a metaclass to build the class object. The default metaclass is type. You can specify a different one with the metaclass keyword argument in the class definition.
+
+The built-in type can also be called directly with three arguments to create a class dynamically at runtime: the class name, a tuple of base classes, and a dictionary of attributes and methods.
+
+A custom metaclass overrides dunder-new to intercept class creation. A docstring-enforcing metaclass, for example, inspects every callable in the new class's namespace and raises a TypeError at class definition time if any public method is missing a docstring. The error appears when the class is defined, not when the method is called — which is much earlier and more helpful.
+
+Before writing a metaclass, ask whether dunder-init-subclass, a class decorator, or an ABC can achieve the same goal with less machinery. They usually can.
+
+Class Decorators.
+
+A class decorator is a callable that receives a class object and returns a class object. It is applied with the at-sign syntax just like a function decorator. The class is created first, then the decorator is called with it, and the result replaces the original name.
+
+Class decorators are simpler and more explicit than metaclasses for most use cases. The dataclass decorator from the standard library is the most widely used example — it inspects annotations and generates dunder-init, dunder-repr, and dunder-eq.
+
+You can write your own. A decorator that adds a to_dict method to any class is just a function that creates the method and attaches it to the class. A decorator that validates dunder-init arguments against type annotations wraps the original init with a new one that checks types before delegating.
+
+Summary.
+
+Abstract base classes define interfaces that subclasses must implement. Instantiating an incomplete subclass raises TypeError at construction time. Abstract properties combine property and abstractmethod.
+
+Protocols define structural interfaces — an object satisfies a Protocol by having the right methods, without inheriting from it. They are primarily a static typing tool. The runtime-checkable decorator enables isinstance checks.
+
+Slots replaces the per-instance dictionary with fixed memory slots. Thirty to fifty percent less memory per instance. Prevents arbitrary attribute assignment.
+
+Descriptors intercept attribute access and assignment via dunder-get and dunder-set. They are the mechanism behind properties, classmethods, and staticmethods. Use dunder-set-name to capture the attribute name at class definition time.
+
+Context managers implement dunder-enter for setup and dunder-exit for guaranteed cleanup. Return True from dunder-exit to suppress exceptions. The contextmanager decorator lets you write one as a generator.
+
+dunder-new creates the instance before dunder-init initialises it. Use for singletons, instance caching, and subclassing immutable types.
+
+dunder-init-subclass is called on the parent when a subclass is defined. Use for plugin registries and subclass validation without metaclass complexity.
+
+Metaclasses are classes whose instances are classes. The default is type. Prefer dunder-init-subclass or class decorators when they suffice.
+
+Class decorators are callables applied to class objects. Simpler and more explicit than metaclasses for adding methods, enforcing conventions, or wrapping dunder-init.
+
+In the next notebook, we cover file input and output, the pathlib module, and working with common file formats.
