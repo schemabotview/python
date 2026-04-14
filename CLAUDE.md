@@ -36,10 +36,10 @@ Audio is generated locally using ChatterboxTTS in the `chatterbox` conda environ
 
 ```bash
 # Generate audio for a single .tts file
-/opt/anaconda3/envs/chatterbox/bin/python scripts/generate_audio.py tts/01-intro-and-setup.tts
+conda activate chatterbox && python scripts/generate_audio.py tts/01-intro-and-setup.tts
 
 # Regenerate even if .wav already exists
-/opt/anaconda3/envs/chatterbox/bin/python scripts/generate_audio.py tts/01-intro-and-setup.tts --force
+conda activate chatterbox && python scripts/generate_audio.py tts/01-intro-and-setup.tts --force
 ```
 
 Steps:

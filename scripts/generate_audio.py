@@ -53,8 +53,35 @@ def main():
     print("Model loaded\n")
 
     # ── Generate ───────────────────────────────────────────────────────────────
-    text   = tts_file.read_text(encoding="utf-8").strip()
-    chunks = [line.strip() for line in text.split("\n") if line.strip()]
+    import re
+
+    MAX_CHUNK = 300
+
+    def to_chunks(text):
+        chunks = []
+        for line in text.split("\n"):
+            line = line.strip()
+            if not line:
+                continue
+            if len(line) <= MAX_CHUNK:
+                chunks.append(line)
+            else:
+                # split long lines on sentence boundaries
+                sentences = re.split(r'(?<=[.!?])\s+', line)
+                buf = ""
+                for s in sentences:
+                    if len(buf) + len(s) + 1 <= MAX_CHUNK:
+                        buf = (buf + " " + s).strip() if buf else s
+                    else:
+                        if buf:
+                            chunks.append(buf)
+                        buf = s
+                if buf:
+                    chunks.append(buf)
+        return chunks
+
+    text    = tts_file.read_text(encoding="utf-8").strip()
+    chunks  = to_chunks(text)
     silence = torch.zeros(1, int(model.sr * 0.3))  # 300 ms gap between chunks
 
     print(f"Generating: {tts_file.name} ({len(chunks)} chunks)")
