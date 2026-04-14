@@ -1,0 +1,106 @@
+Every program you write needs to store and manipulate information — a user's name, a price, a yes or no answer. Variables are how Python holds that information in memory. Data types are how Python knows what kind of information it is and what operations make sense on it. This notebook covers both from the ground up.
+
+What is a Variable.
+
+A variable is a named label attached to a value. Instead of writing the same value over and over throughout your program, you give it a name once and refer to it by that name wherever you need it.
+
+Think of it like a sticky note. You write a value on the note, give the note a label, and stick it somewhere you can find it. When you need that value, you look up the label.
+
+In Python, you create a variable with the assignment operator — a single equals sign. The name goes on the left, the value on the right. That equals sign does not mean equality as in maths. It means: take the value on the right, and attach it to the name on the left.
+
+You can assign numbers, text, or any other value. Python also lets you use underscores inside large numbers as a visual separator — they are ignored by the interpreter but make the number far easier to read at a glance.
+
+Variables can be reassigned at any time. When you write score equals score plus five, Python reads the current value of score, adds five to it, and stores the result back under the same label.
+
+Naming Rules and Conventions.
+
+Python enforces a few hard rules on variable names — break them and your code will not run.
+
+Names must start with a letter or an underscore. They can contain letters, digits, and underscores, but nothing else — no hyphens, no spaces, no special characters. Names are case-sensitive, so score and Score are two entirely different variables. And you cannot use a Python keyword — words like for, if, class, and return are reserved by the language.
+
+Beyond the rules, Python has a strong convention: use snake case — all lowercase letters, with underscores between words. This is what the community expects and what you will see in every professional Python codebase.
+
+Name variables for what they represent, not how they are stored. A variable called user_age tells the reader everything. A variable called x tells them nothing.
+
+Dynamic Typing.
+
+In some languages, you must declare the type of a variable before you use it. In Java, for example, you write int age equals thirty, explicitly stating that this variable holds an integer.
+
+Python is dynamically typed — you just assign a value, and Python figures out the type for you. You can even reassign a variable to a completely different type later, though that is rarely a good idea in practice.
+
+The built-in type function tells you exactly what type a value or variable holds at any moment. Pass any value to type and it returns the class it belongs to.
+
+Core Data Types.
+
+Python has five built-in types you will use in virtually every program. Integers for whole numbers. Floats for numbers with a decimal point. Strings for text. Booleans for true or false values. And None for the deliberate absence of any value. Let us look at each one in depth.
+
+Integers.
+
+Integers are whole numbers — no decimal point. They can be positive, negative, or zero. Python's integer has no fixed size limit — it will happily handle numbers with hundreds of digits. That is a meaningful difference from languages like C or Java that cap integers at sixty-four bits.
+
+Integer arithmetic uses the operators you already know for addition, subtraction, and multiplication. Exponentiation uses a double asterisk. Floor division — a double forward slash — divides and rounds down to the nearest whole number, and always returns an integer. The modulo operator — the percent sign — returns the remainder after division. It is more useful than it sounds: modulo ten on any number tells you its last digit; modulo two tells you whether a number is even or odd.
+
+Floats.
+
+Floats are numbers with a decimal point. Python stores them using the IEEE seven-five-four double-precision standard, which gives you about fifteen to seventeen significant digits.
+
+One thing every programmer eventually runs into is floating-point imprecision. Try adding zero-point-one and zero-point-two in Python and the result is not zero-point-three — it is zero-point-three-zero-zero-zero-zero-zero-zero-zero-zero-zero-zero-zero-zero-zero-zero-four. This is not a Python bug. It is fundamental to how all modern processors represent decimal numbers in binary. When precision matters — say, for currency — use the round function to limit the decimal places.
+
+Also worth knowing: regular division with a single forward slash always returns a float in Python 3, even when the result is a whole number. Ten divided by two gives five-point-zero, not five.
+
+Strings.
+
+Strings are sequences of text characters — letters, digits, spaces, punctuation, anything. You define them by wrapping text in either single quotes or double quotes. Python treats the two interchangeably.
+
+Use double quotes when your text contains an apostrophe, and single quotes when your text contains a double quote — this avoids needing to escape characters with a backslash. For text that spans multiple lines, triple quotes — three double or single quotes in a row — let the string continue across as many lines as you need.
+
+The len function returns the number of characters in a string. Strings have methods like upper and capitalize built in. You join two strings together with the plus operator — this is called concatenation. You repeat a string with the multiplication operator — useful for drawing lines of dashes.
+
+The cleanest way to embed values inside strings is the f-string, introduced in Python three-point-six. Put an f immediately before the opening quote, then place any variable or expression inside curly braces within the string. Python evaluates it and inserts the result. You can also apply format specifiers inside the braces — for instance, colon-dot-two-f formats a number to two decimal places.
+
+Booleans.
+
+A boolean has exactly two possible values: True or False. Note the capital first letter — that is required syntax in Python; lowercase true and false would be treated as undefined variables and raise an error.
+
+Booleans are what you get back from comparisons, and they are what if statements expect. Use double equals for comparison — single equals is assignment. The not-equals operator is exclamation mark equals.
+
+Python also has the concept of truthiness. Every value in Python can be evaluated in a boolean context, not just booleans themselves. The falsy values — those that evaluate to False — are: zero, zero-point-zero, an empty string, an empty list, an empty dictionary, and None. Everything else is truthy.
+
+None.
+
+None is Python's way of representing nothing — the deliberate absence of a value. It is its own type, called NoneType, and there is only ever one None object in any Python program.
+
+You will encounter None frequently. A function that does not explicitly return a value returns None. Variables are sometimes initialised to None as a placeholder before they have a real value. Optional function parameters often default to None.
+
+The idiomatic way to check for None is with the is keyword — not double equals. Write if result is None, not if result equals equals None.
+
+Type Conversion.
+
+Python will not silently convert between types for you. If you try to add a number to a string, you get an error, not a guess. When you need to change a value from one type to another, you do it explicitly using the built-in conversion functions.
+
+The int function converts to an integer. When given a float, it truncates — it drops the decimal part without rounding. Nine-point-nine becomes nine, not ten. When given a string, it parses the digits out. When given something it cannot convert — like the word hello — it raises a ValueError immediately and clearly.
+
+The float function converts to a floating-point number. The str function converts anything to its string representation. The bool function converts to True or False using the truthiness rules described earlier.
+
+This explicitness is intentional. Python forces you to be clear about what you want, rather than guessing.
+
+A practical situation where this matters: the input function, which reads text typed by the user, always returns a string — even if the user types a number. Before you can do arithmetic on it, you must explicitly convert it with int or float.
+
+Constants.
+
+Python has no built-in const keyword to lock a value and prevent it from being changed. Instead, the community uses a naming convention: upper snake case — all uppercase letters, with underscores between words — signals to any reader that this value is intended to be constant and should not be reassigned.
+
+Python will not stop you from reassigning an upper-case variable. The capital letters are a social contract, not a technical lock. Honour the convention and your teammates will thank you.
+
+Constants are typically defined at the top of a file and used by name throughout the code. This eliminates magic numbers — raw values with no explanation scattered through your logic — and makes the code much easier to update later.
+
+Multiple Assignment.
+
+Python lets you assign multiple variables on a single line. List the names on the left, separated by commas, and the values on the right, also separated by commas. Python matches them up left to right.
+
+You can also assign the same value to several variables at once by chaining equals signs together.
+
+The most elegant use of multiple assignment is swapping two variables. In most languages, swapping requires a temporary variable. In Python, you simply write first comma second equals second comma first, and the swap happens in one line with no intermediate step.
+
+In the next notebook, we go deeper into operators and expressions — the tools Python gives you for computing and combining values.
+
