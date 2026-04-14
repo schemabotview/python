@@ -32,10 +32,21 @@ For topics that use additional libraries (e.g., data structures visualisation, t
 
 ## Audio Generation
 
-Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
-1. Reads `.tts` files from `tts/`
-2. Generates `.wav` files using ChatterboxTTS
-3. Pushes each `.wav` to `audio/` via git commit
+Audio is generated locally using ChatterboxTTS in the `chatterbox` conda environment.
+
+```bash
+# Generate audio for a single .tts file
+/opt/anaconda3/envs/chatterbox/bin/python scripts/generate_audio.py tts/01-intro-and-setup.tts
+
+# Regenerate even if .wav already exists
+/opt/anaconda3/envs/chatterbox/bin/python scripts/generate_audio.py tts/01-intro-and-setup.tts --force
+```
+
+Steps:
+1. Write/update the `.tts` file in `tts/`
+2. Run the command above (swap the filename for the topic you want)
+3. The `.wav` is saved to `audio/` with the same stem name
+4. Commit and push the generated `.wav`
 
 ## Topics Covered
 
