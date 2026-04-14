@@ -1,0 +1,121 @@
+As programs grow, repeating the same logic in multiple places becomes a maintenance problem — fix a bug in one copy and forget the other three. Functions solve this by giving a name to a reusable block of code. You define the logic once and call it from anywhere. Functions also let you break a large problem into smaller, named pieces that are easier to read, test, and reason about. This notebook covers everything from defining a basic function to default arguments, variadic parameters, scope, lambdas, and treating functions as first-class values.
+
+Defining and Calling Functions.
+
+You define a function with the def keyword, followed by the function name, parentheses, a colon, and an indented body. The function is defined once and called as many times as you need. Defining a function does not run its body — the body only runs when the function is called.
+
+If a function reaches the end of its body without a return statement, it implicitly returns None. You can return any value — a number, a string, a list, another function, or nothing.
+
+A practical use: instead of writing the temperature conversion formula three different places in your code, you define it once as a function and call it from wherever you need it.
+
+Parameters and Arguments.
+
+Parameters are the names listed in the function definition. Arguments are the actual values you pass when calling the function.
+
+Positional arguments are matched to parameters left to right, in order. They are the most common kind. Keyword arguments are passed by name — the order in which you write them does not matter. Using keyword arguments makes call sites more readable, especially when a function has many parameters.
+
+You can mix both in one call, but positional arguments must come before keyword arguments. Python will raise an error if you put a keyword argument before a positional one.
+
+Default Parameter Values.
+
+You can give a parameter a default value. If the caller does not pass that argument, the default is used. Parameters with defaults must come after any parameters without defaults in the definition.
+
+There is an important gotcha with default values. Default values are evaluated exactly once, when the function is defined, not on each call. If you use a mutable object — like a list or dictionary — as a default, that object is shared across every call. Appending to it in one call permanently modifies it for all subsequent calls.
+
+The correct pattern is to use None as the default for any parameter that should be a fresh mutable object, then create the object inside the function body. Check if the argument is None, and if so, assign it a new empty list or dictionary right there.
+
+Return Values.
+
+The return statement immediately exits the function and hands back a value to the caller. The first return statement reached ends execution. A function can have multiple return statements — this is often called an early return, and it is a clean way to exit as soon as you have your answer.
+
+To return multiple values, separate them with commas. Python packs them into a tuple automatically. At the call site, you can unpack the tuple directly into separate variables by listing the variable names separated by commas on the left side of the assignment.
+
+Args and Kwargs.
+
+Sometimes you want a function to accept a variable number of arguments without listing them all in advance.
+
+A parameter prefixed with a single asterisk — conventionally named args — collects any extra positional arguments into a tuple. You can then iterate over it or pass it to functions like sum. The caller can pass as many arguments as they like, or none at all.
+
+A parameter prefixed with two asterisks — conventionally named kwargs — collects any extra keyword arguments into a dictionary. You can then iterate over its items or look up specific keys.
+
+The names args and kwargs are conventions only — what matters is the asterisk prefix. You can name them anything descriptive, like star-numbers or double-star-options.
+
+You can combine both in one function definition. The required positional parameters come first, then star-args, then any keyword-only parameters, then double-star-kwargs.
+
+The asterisk and double-asterisk syntax also works when calling a function. Prefixing a list with a single asterisk unpacks it as positional arguments. Prefixing a dictionary with double asterisks unpacks it as keyword arguments.
+
+Scope.
+
+Scope determines which parts of your code can see and modify a variable.
+
+Variables created inside a function are local — they exist only for the duration of that call and are invisible outside it. Variables defined at the top level of a module are global — visible everywhere in that module.
+
+Python looks up a name using what is called the LEGB rule: it searches Local scope first, then Enclosing scope, then Global scope, then Built-in scope. It uses the first match it finds.
+
+A function can read a global variable without any special declaration. But to reassign a global variable — to make the name point to a new object — you must write the global keyword followed by the variable name inside the function. Without it, the assignment creates a new local variable with the same name, leaving the global untouched.
+
+In practice, avoid global state. Functions that modify global variables are harder to test and reason about. Prefer passing values in as arguments and returning results out.
+
+The nonlocal keyword is for a subtler case: modifying a variable in an enclosing function scope that is not the global scope. This comes up when you write a function inside another function. The inner function can read the outer function's local variable freely, but to reassign it, you need nonlocal. This is how you build a stateful closure — a function that remembers and updates a value across calls.
+
+Docstrings.
+
+A docstring is a string literal placed as the very first statement of a function body. Python stores it in the function's special dunder-doc attribute. Tools like help, IDEs, and documentation generators read it automatically.
+
+Use triple quotes for multi-line docstrings. The first line should be a short, imperative summary — describe what the function does, not how it does it. If more detail is needed, leave a blank line after the summary, then document parameters, return values, and examples.
+
+Lambdas.
+
+A lambda is a small anonymous function defined in a single expression. The syntax is: the lambda keyword, then the parameters, then a colon, then the expression. The expression is evaluated and implicitly returned — there is no return keyword. Lambdas are limited to a single expression, which rules out assignments, statements, and multi-line logic.
+
+Their main use is as a short throwaway function passed as an argument to another function. The most common situation is providing a sort key to the sorted function. Instead of writing a named function just to extract one field from a dictionary, you write a lambda inline.
+
+You can also pass a lambda as the key argument to sort by a tuple — for example, sort words by their length first, then alphabetically within the same length group.
+
+The map function applies a function to every item in an iterable and returns an iterator of the results. The filter function keeps only the items for which the function returns True. Both are natural places for short lambdas.
+
+For anything more complex than a few characters of logic, prefer a named function — it is easier to read, test, and reuse.
+
+Functions as First-Class Objects.
+
+In Python, functions are first-class objects. They are values, just like integers or strings. You can assign a function to a variable, pass a function as an argument to another function, return a function from a function, and store functions in lists or dictionaries.
+
+When you write a function's name without parentheses, you get the function object itself. The parentheses are what trigger the call. This distinction is important: transform equals square assigns the function; transform of five calls it.
+
+A function that takes another function as an argument, or returns one, is called a higher-order function. The apply-twice pattern is a classic example — pass in any function and a value, and it applies the function to the value, then applies it again to the result.
+
+When a function is returned from another function and it references a variable from the outer function's scope, that variable is captured in a closure. The returned function remembers the enclosing scope's variable even after the outer function has finished running. This is how make-multiplier works: the returned multiply function captures the factor variable from its enclosing call, so double always multiplies by two and triple always multiplies by three, and they are completely independent of each other.
+
+Recursion.
+
+A function is recursive when it calls itself. Each call works on a smaller piece of the problem until it reaches a base case — a condition where it returns a result directly without recursing further. Without a base case, the function calls itself forever and Python raises a RecursionError.
+
+The factorial function is the textbook example. Factorial of n equals n times factorial of n minus one, with the base case that factorial of zero equals one. Python's default recursion limit is one thousand levels deep.
+
+Recursion is a natural fit for problems that are self-similar — trees, nested data structures, and divide-and-conquer algorithms. The flatten function is a good example: to flatten a nested list, iterate over its items; if an item is itself a list, recurse; otherwise, append it to the result. The same function handles any depth of nesting without knowing the structure in advance.
+
+For straightforward iteration, a loop is usually clearer and faster. Reach for recursion when the problem structure itself is recursive.
+
+Summary.
+
+Define functions with def. A function that reaches the end without a return statement implicitly returns None.
+
+Positional arguments are matched by order; keyword arguments are matched by name. Keyword arguments make call sites self-documenting.
+
+Default parameter values make arguments optional. Never use a mutable object as a default — use None and create the object inside the function.
+
+Return exits the function. Return multiple values with a comma — Python packs them into a tuple.
+
+Star-args collects extra positional arguments into a tuple. Double-star-kwargs collects extra keyword arguments into a dict. Use the same star syntax when calling to unpack sequences and mappings.
+
+Scope follows LEGB: Local, Enclosing, Global, Built-in. Use global to rebind a global variable inside a function, and nonlocal to rebind an enclosing scope variable. Prefer passing and returning values over modifying outer scope.
+
+Docstrings document what a function does. Put them as the first statement, use triple quotes, and keep the first line a concise imperative summary.
+
+Lambdas are anonymous single-expression functions, useful as throwaway arguments to sorted, map, and filter.
+
+Functions are first-class objects — they can be assigned, passed, returned, and stored. Higher-order functions and closures are built on this.
+
+Recursion is a function calling itself with a smaller input until a base case is reached. Natural for nested and self-similar structures; loops are usually preferable for simple iteration.
+
+In the next notebook, we cover sequences — strings, lists, and tuples — the core ordered collection types in Python.

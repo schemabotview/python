@@ -1,0 +1,107 @@
+By default, Python runs your code top to bottom, one line at a time. Control flow is how you break out of that straight line — branching to run different code depending on a condition, repeating a block of code for every item in a collection, or looping until something changes. This notebook covers Python's full set of control flow tools: if, elif, and else for branching; for and while for looping; break, continue, and pass for fine-grained loop control; the loop else clause; and the match statement introduced in Python 3.10.
+
+If, Elif, and Else.
+
+An if statement evaluates a condition. If the condition is truthy, its indented block runs. If not, Python moves on.
+
+Unlike C, Java, or JavaScript, the condition does not need parentheses. A colon is required at the end of each clause — if, elif, and else. Indentation defines the block. Python has no braces; the standard is four spaces. The elif and else branches are optional, and you can have as many elif branches as you need. Only the first matching branch runs — Python stops checking as soon as one condition is satisfied.
+
+A good example is a grade calculator. You check if the score is ninety or above for an A, then eighty or above for a B, then seventy for a C, and so on. Even if the score is ninety-five — which satisfies the first condition — Python takes that branch and ignores all the elif branches below it.
+
+Conditions do not have to be explicit boolean expressions. Any value works. An empty string is falsy; a non-empty string is truthy. An empty list is falsy; a non-empty list is truthy. So you can write if username to mean if the username is not empty, and if items to mean if the cart has anything in it. This is very idiomatic Python.
+
+Conditional Expressions.
+
+Python has a compact one-line form of if and else called a conditional expression, sometimes called a ternary operator. The syntax puts the true value first, then the condition, then the false value: value-if-true if condition else value-if-false.
+
+Use it for simple assignments where you would otherwise write four lines of if and else. For example, status equals the string adult if age is at least eighteen, otherwise minor. You can also use it inside an f-string — for instance, to correctly pluralise a word based on a count.
+
+Avoid conditional expressions when the logic is complex. Readability always wins over brevity.
+
+For Loops.
+
+A for loop iterates over any iterable — a sequence you can step through one item at a time. Strings, lists, tuples, sets, dictionaries, ranges, and files are all iterable.
+
+Python's for is a for-each loop. It always iterates over the items of a collection directly, not over an index counter. For each iteration, Python binds the current item to the loop variable, runs the body, then moves to the next item.
+
+If you need the index alongside the value, use the built-in enumerate function. It wraps any iterable and yields pairs of index and value. You can unpack them directly in the for line. By default the counter starts at zero, but you can pass start equals one to begin from one instead.
+
+The zip function lets you iterate two sequences in parallel. It steps through both at the same time, yielding a pair on each iteration. You unpack the pair directly in the for line.
+
+To iterate over a dictionary's key-value pairs, call its items method. The for line unpacks each pair into a key variable and a value variable.
+
+Range.
+
+The range function generates a sequence of integers on demand, without building a list in memory. It takes up to three arguments: start, stop, and step.
+
+With one argument, range produces integers from zero up to but not including that number. With two arguments, it starts at the first and goes up to but not including the second. With a third argument — the step — it advances by that amount each time. A negative step counts down.
+
+The stop value is always excluded, which is consistent with how slicing works. Range of five gives you zero through four, not zero through five.
+
+While Loops.
+
+A while loop keeps running its body as long as its condition remains truthy. Use it when you do not know in advance how many iterations you need — reading input until the user types quit, retrying a network request until it succeeds, or processing items from a queue until it is empty.
+
+The condition is checked before each iteration. If it is already falsy when the loop is first reached, the body never runs at all. The key discipline with while loops is to ensure the body eventually makes the condition false — otherwise you have an infinite loop.
+
+A natural use is a retry loop. You keep a counter, increment it on each attempt, and break out of the loop when you succeed. The while condition checks that you have not exceeded the maximum number of retries and that you have not yet succeeded.
+
+Break and Continue.
+
+Two keywords give you fine-grained control inside any loop.
+
+Break exits the loop immediately. The remaining iterations are abandoned and execution jumps to the first line after the loop. Use it when you have found what you were looking for and there is no point continuing.
+
+Continue skips the rest of the current iteration and jumps straight to the next one. In a for loop, that means advancing to the next item. In a while loop, it means re-checking the condition. Use it to filter out items you want to ignore without adding a nested if block around the entire body.
+
+Else on Loops.
+
+Python's for and while loops can have an else clause. This surprises most people coming from other languages because no other major language has this construct.
+
+The else block runs only if the loop completed normally — that is, it was not stopped by a break. If a break fires, the else is skipped entirely.
+
+This is most useful when you are searching through a collection and need to do something different depending on whether you found what you were looking for. Without the loop else, you would need a flag variable — set it to False before the loop, set it to True when you find the item, then check the flag after the loop. The loop else eliminates the flag entirely.
+
+Pass.
+
+Pass is a no-op — it does nothing. Python requires that every block after a colon contains at least one statement, so pass is a syntactically valid placeholder for blocks you intend to fill in later, or for blocks that genuinely need to do nothing.
+
+Common uses: a function body you plan to implement later; an except clause you want to catch but not handle; or a loop branch that deliberately takes no action.
+
+Nested Loops.
+
+You can place a loop inside another loop. The inner loop completes all its iterations for each single iteration of the outer loop. The total number of executions of the innermost body is the product of both loops' lengths, so be mindful of performance when nesting deeply.
+
+A break inside a nested loop only exits the innermost loop — the outer loop continues. To break out of multiple levels, the cleanest approach is to put the nested loops inside a function and use return. The alternative is a flag variable: set it to True when you want to exit, check it in the outer loop's body, and break if it is set.
+
+Match Statement.
+
+Python 3.10 introduced structural pattern matching through the match and case keywords. In appearance it is similar to a switch statement from other languages, but it is significantly more powerful.
+
+A match statement takes a subject expression and compares it against a series of case patterns. Only the first matching case runs. An underscore at the end acts as a wildcard that matches anything — equivalent to a default branch.
+
+For simple value matching, match is cleaner than a long if-elif chain. You can also combine multiple values in a single case using a vertical bar — meaning either this value or that value.
+
+The real power comes from structural patterns. If the subject is a list, you can match on its contents directly. A case pattern of a list with two elements will match any two-element list and bind the elements to named variables in one step. You can use star notation to capture a variable number of remaining elements. This lets you build a simple command parser in very readable code — one case per command shape, each extracting the relevant parts from the structure in the pattern itself.
+
+Summary.
+
+If, elif, and else branch based on conditions. Only the first truthy branch runs. No parentheses needed; colon and indentation are required.
+
+Conditional expressions give you a one-line form of if-else for simple assignments.
+
+For loops iterate over any iterable. Enumerate gives you index and value. Zip iterates two sequences in parallel. Range generates integer sequences on demand.
+
+While loops repeat while a condition is truthy. Ensure the body moves toward termination.
+
+Break exits the current loop immediately. Continue skips to the next iteration.
+
+The loop else clause runs only if no break occurred — useful for the not-found case in a search.
+
+Pass is a syntactic placeholder for an empty block.
+
+A break in a nested loop only exits the innermost one. Use a flag or a function with return to escape multiple levels.
+
+Match and case, introduced in Python 3.10, provide structural pattern matching — cleaner than long if-elif chains and capable of destructuring sequences in the pattern itself.
+
+In the next notebook, we cover functions — how to define reusable blocks of logic, pass data in with parameters, return results out, and keep your code organised and readable.
