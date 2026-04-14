@@ -1,0 +1,109 @@
+Every for loop in Python rests on a two-method protocol. Understanding that protocol — and the generator syntax built on top of it — unlocks a whole class of patterns: infinite sequences, lazy data pipelines, memory-efficient processing of huge datasets, and coroutines. This notebook starts at the protocol itself, builds up through custom iterators, introduces generator functions, covers yield from and generator delegation, shows how to send values into a generator, and ends with practical pipeline patterns.
+
+The Iterator Protocol.
+
+Python's for loop is syntactic sugar for two calls. First, iter is called on the iterable, which invokes its dunder-iter method and returns an iterator. Then next is called on that iterator repeatedly, invoking dunder-next each time, until StopIteration is raised and the loop ends.
+
+Two roles are in play. An iterable is any object with a dunder-iter method — lists, strings, dicts, files, ranges, and more. Calling iter on it returns a fresh iterator. An iterator is any object with a dunder-next method, and a dunder-iter method that returns itself. Calling next on it returns the next value or raises StopIteration when exhausted.
+
+Iterators are single-use. Once exhausted, they are done. Iterables, by contrast, can produce a fresh iterator each time iter is called, so you can loop over them multiple times.
+
+You can drive the protocol manually. Call iter on a list to get a list iterator object, then call next to pull values out one by one. The fourth call to next raises StopIteration. Calling iter on the same list again gives you a brand new iterator that starts from the beginning.
+
+Iterators are their own iterators — calling iter on an iterator returns the same object. This is why iterators work inside for loops. If you advance an iterator with next before a for loop, the loop resumes from wherever the iterator left off.
+
+The next function accepts a second argument: a default value to return instead of raising StopIteration when the iterator is exhausted. This is handy when you just want one value and do not want to deal with exception handling.
+
+Custom Iterators.
+
+Any class that implements dunder-iter and dunder-next becomes an iterator. This class-based approach is useful when you need mutable state, lazy computation, or precise control over the traversal.
+
+A CountUp class that takes a start and stop value implements dunder-init to store the current position and the stop boundary, dunder-iter to return self, and dunder-next to increment the counter and raise StopIteration when the boundary is reached. Once defined, it works in for loops, with list, with sum, and with any other iterator consumer.
+
+It is worth separating the iterable from the iterator when you want reusability. A FibSequence class stores only the limit and, in its dunder-iter method, returns a new FibIterator object each time. The FibIterator holds the actual traversal state — the two running values. Because dunder-iter on FibSequence always creates a fresh iterator, you can iterate the same FibSequence object multiple times and always get the same sequence from the beginning.
+
+Generator Functions.
+
+Writing a full iterator class is verbose. Generator functions produce iterators with a fraction of the code. Any function that contains the yield keyword is a generator function. Calling it returns a generator object — an iterator — without executing the body at all.
+
+Execution runs until a yield statement, pauses and saves the entire local state, then resumes from that exact point on the next next call. When the function returns or falls off the end, StopIteration is raised automatically.
+
+A generator version of CountUp replaces the class with a simple function. A while loop increments a local variable and yields it each iteration. The result is a generator object of type generator that behaves identically to the class-based version — you can call next on it, use it in a for loop, pass it to list, and so on.
+
+Generators are lazy. When you call a generator function, nothing runs. The body does not start until the first next call, and then it runs only until the first yield. A verbose generator that prints before and after each yield makes this concrete: creating the generator prints nothing, calling next once runs until the first yield, and calling next again resumes from immediately after that yield.
+
+Generator Fibonacci is much simpler than the class-based version. A single function with two local variables and a while loop replaces the two-class design. By making the limit optional, you can get an infinite variant and use itertools.islice to take only the first ten values.
+
+Infinite Generators.
+
+A generator function can loop forever. It is safe because values are only produced when asked for. An integers-from generator simply increments a counter and yields it in an infinite while loop. A primes generator uses it as a source and applies a trial division filter, accumulating found primes and yielding each new one.
+
+Combined with itertools.islice, you can take the first fifteen primes. Combined with itertools.takewhile and a lambda, you can take all primes below fifty. The itertools.cycle function wraps any finite iterable into an infinite one that repeats from the start — cycling through a list of colour names indefinitely and taking seven values gives a repeating pattern.
+
+yield from — Generator Delegation.
+
+The yield-from expression delegates to another iterable, yielding all its values in turn. It is cleaner than a for loop with individual yield calls and also properly connects send and throw calls through the delegation chain.
+
+A flatten function that recursively flattens an arbitrarily nested list uses yield from to delegate to a recursive call when it encounters a list or tuple, and a plain yield for scalar values. The result is a clean one-level sequence regardless of how deeply nested the input is.
+
+Chaining multiple generators works the same way: loop over the iterables and yield from each one. The equivalent of itertools.chain in pure Python is just a few lines.
+
+The yield-from expression also captures the return value of a sub-generator. When the sub-generator raises StopIteration with a value, yield from makes that value the result of the yield-from expression in the outer generator. A sub-generator that yields one and two and then returns a string, and an outer generator that assigns the result of yield from sub to a local variable, demonstrates this clearly.
+
+Sending Values into a Generator.
+
+The yield keyword is an expression, not just a statement. The dot-send method resumes a generator and makes its argument the result of the yield expression inside the generator. This turns a generator into a coroutine — a function that can both produce and receive values.
+
+The first call to start a generator must use next or dot-send-None to prime it, advancing it to the first yield. After that, any value can be sent in.
+
+A running-average coroutine maintains a total and count across calls. Each time through its while loop it executes value equals yield average. The left side receives whatever was sent in, and the right side is what gets yielded out. Sending the numbers ten, twenty, thirty, forty, and fifty produces running averages of ten, fifteen, twenty, twenty-five, and thirty.
+
+The dot-throw method injects an exception into the generator at the point where it is currently paused. The generator can catch it with a try-except block and continue or yield a recovery value. The dot-close method throws GeneratorExit, which the generator can handle in a finally block for cleanup, after which the generator terminates.
+
+Generator Return Values.
+
+A generator function can have a return statement with a value. The value is not yielded — it is stored as the value attribute of the StopIteration exception. The yield-from expression captures this return value automatically. In ordinary iteration the return value is silently discarded.
+
+A counted-sum generator yields each item from an iterable and, when the iterable is exhausted, returns a tuple of the total and count. To access the return value, wrap the iteration in a try-except StopIteration block and read e.value when the exception fires.
+
+itertools — The Iterator Toolkit.
+
+The itertools module provides a set of fast, memory-efficient building blocks for iterator-based code. They all return lazy iterators — nothing is computed until consumed.
+
+The infinite iterators are count, cycle, and repeat. Count takes a start and step and counts indefinitely. Cycle repeats an iterable forever. Repeat yields a single value a given number of times, or forever if no count is given.
+
+The terminating iterators include chain, compress, dropwhile, takewhile, and pairwise. Chain concatenates multiple iterables into one. Compress filters an iterable by a boolean mask, keeping only the elements where the mask is true. Dropwhile discards elements from the front as long as a predicate holds, then yields the rest — including elements that would also satisfy the predicate. Takewhile is the mirror: it yields elements from the front as long as the predicate holds and stops as soon as it fails. Pairwise, added in Python three point ten, yields overlapping consecutive pairs from the input.
+
+The combinatoric iterators cover product, permutations, combinations, and combinations-with-replacement. Product computes the Cartesian product of multiple iterables — every combination of one element from each. Permutations yields all ordered arrangements of a given length. Combinations yields all unordered selections without repetition. Combinations-with-replacement allows an element to appear more than once in a selection.
+
+Lazy Pipelines.
+
+Generators compose naturally into pipelines. Each stage is a generator function that consumes from the previous stage and yields to the next. The entire pipeline runs lazily — data flows through one item at a time, with no intermediate collections held in memory.
+
+A four-stage log processing pipeline illustrates this. The first stage yields raw log lines from a source. The second stage parses each line with a regular expression and yields a dictionary. The third stage filters for error-level records. The fourth stage formats each record as a display string. Wiring the stages together means passing the output of each generator into the input of the next. Nothing runs until you iterate the final stage.
+
+The memory advantage is dramatic. A list-based pipeline that processes one hundred thousand numbers through filter and map steps allocates a full intermediate list at each stage — hundreds of thousands of bytes. A generator pipeline using generator expressions for the same operations holds only a handful of bytes regardless of input size, because no intermediate collection ever exists. The final result is identical.
+
+Summary.
+
+The iterator protocol: dunder-iter returns an iterator, dunder-next returns the next value or raises StopIteration. iter and next call these methods. Iterables produce fresh iterators on demand; iterators are single-use.
+
+next with a default argument avoids StopIteration when you just want one item.
+
+Custom iterators implement dunder-iter and dunder-next. Separate the iterable from the iterator when you need reusability.
+
+Generator functions use yield to pause and resume. Calling the function returns a lazy generator object. The body does not run until the first next call. Local state is fully preserved across yields.
+
+Infinite generators are safe because values are produced only on demand. Use itertools.islice or itertools.takewhile to limit consumption.
+
+yield from delegates to another iterable, forwards send and throw through the chain, and captures the sub-generator's return value.
+
+dot-send resumes a generator with a value that becomes the result of the yield expression — turning the generator into a coroutine. The first call must prime the generator with next or dot-send-None.
+
+Generator return values are stored in StopIteration.value; yield from captures them automatically.
+
+itertools provides infinite iterators — count, cycle, repeat — terminating combiners — chain, compress, dropwhile, takewhile, pairwise — and combinatorics — product, permutations, combinations.
+
+Lazy pipelines chain generator functions so data flows one item at a time with no intermediate collections — constant memory regardless of input size.
+
+In the next notebook, we cover decorators — how to wrap functions and classes to add behaviour without modifying their source code.
