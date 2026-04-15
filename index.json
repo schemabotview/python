@@ -1,0 +1,50 @@
+{
+  "sections": [
+    {
+      "title": "Getting Started",
+      "notebooks": [
+        "01-intro-and-setup",
+        "02-variables-and-data-types",
+        "03-operators-and-expressions"
+      ]
+    },
+    {
+      "title": "Control Flow & Functions",
+      "notebooks": [
+        "04-control-flow",
+        "05-functions"
+      ]
+    },
+    {
+      "title": "Data Structures",
+      "notebooks": [
+        "06-sequences-strings-lists-tuples",
+        "07-dictionaries-and-sets",
+        "08-comprehensions"
+      ]
+    },
+    {
+      "title": "Error Handling & I/O",
+      "notebooks": [
+        "09-error-handling-and-exceptions",
+        "12-file-io-and-pathlib",
+        "13-modules-and-packages"
+      ]
+    },
+    {
+      "title": "Object-Oriented Programming",
+      "notebooks": [
+        "10-object-oriented-programming",
+        "11-oop-advanced"
+      ]
+    },
+    {
+      "title": "Advanced Python",
+      "notebooks": [
+        "14-iterators-and-generators",
+        "15-decorators",
+        "16-type-hints-and-annotations"
+      ]
+    }
+  ]
+}

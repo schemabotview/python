@@ -1,0 +1,131 @@
+Python is dynamically typed — variables carry no declared type, and errors surface at runtime. Type hints, introduced in Python three point five and steadily extended since, let you annotate variables, function parameters, and return values with type information. The interpreter ignores annotations entirely at runtime; they exist for static analysis tools like mypy, pyright, and pyrefly, for IDEs, and for documentation. Used well, type hints catch whole classes of bugs before code runs, make APIs self-documenting, and enable powerful editor support. This notebook covers the full annotation syntax, the typing module, generics, protocols, and the practical patterns you will use every day.
+
+Basic Annotation Syntax.
+
+Annotations use a colon after a variable name or parameter and an arrow for return types. They are stored in the dunder-annotations dictionary but are otherwise ignored by Python.
+
+Variable annotations follow the pattern name colon type equals value. You can also annotate a variable without assigning to it — this declares the type without creating the variable. The module-level dunder-annotations dictionary accumulates all annotated names.
+
+Function annotations place the type after each parameter name with a colon, place a default value after that as usual, and use an arrow followed by the return type before the colon that ends the def line. The annotations are stored in the function's dunder-annotations attribute under each parameter name and under the key "return".
+
+A return type of None means the function returns nothing useful. For star-args, the annotation applies to each individual element — annotating star-values as int means each element is an int, while the parameter itself is a tuple of ints at runtime.
+
+Built-in Generic Types.
+
+From Python three point nine onward, built-in containers can be parameterised directly in annotations. Before three point nine, you had to import List, Dict, and Tuple from the typing module. Now you write list of int, dict of str to float, and tuple of int directly.
+
+A function returning the first element of a list of integers can be annotated as taking list-of-int and returning int-or-None. A word count function returns a dict of str to int. A minmax function returns a tuple of two floats. Nested generics work naturally: a grouping function returns a dict mapping int to list-of-str.
+
+Optional and the Union Operator.
+
+The pipe operator between two types means a value can be either type — int-pipe-str means int or str. This syntax was introduced in Python three point ten. Str-pipe-None is the idiomatic way to say a value might be absent, previously written as Optional of str from the typing module.
+
+A find_user function that returns a dict or None uses the pipe-None form. A stringify function accepts int, float, or bool using two pipe operators. Optional from the typing module still works and is identical to X-pipe-None — it is just a longer spelling.
+
+The typing Module Essentials.
+
+The typing module provides annotations that have no built-in equivalent.
+
+Any opts out of type checking for a particular value. A function annotated as accepting Any will satisfy the checker regardless of what is passed to it.
+
+Literal restricts a parameter to a fixed set of values. Annotating a log level parameter as Literal of "DEBUG", "INFO", "WARNING", "ERROR" means passing any other string is a type error.
+
+Final marks a variable as one that must not be reassigned after its initial assignment. The type checker will flag any subsequent assignment as an error.
+
+ClassVar distinguishes class-level attributes from instance attributes in class bodies. Annotating a counter as ClassVar of int tells the checker this is shared across all instances rather than stored per instance.
+
+Callable annotations describe function types. Callable with a list of argument types and a return type describes a function accepting those arguments and returning that type. Callable with an ellipsis and a return type accepts any arguments and returns that type.
+
+Sequence accepts any ordered collection — list, tuple, string, or range — whereas list would only accept lists. Mapping accepts any key-value mapping — dict, defaultdict, or any other — whereas dict would only accept dicts. Preferring Sequence and Mapping over list and dict in parameter annotations makes functions more flexible.
+
+TypedDict and NamedTuple.
+
+TypedDict gives a dictionary a fixed set of typed keys. You define it like a class, with each attribute representing a key and its type. Functions that accept a TypedDict parameter get precise key and value type checking. Adding total=False to the class definition makes all keys optional — useful for configuration objects where most settings have defaults.
+
+NamedTuple creates an immutable record with named, typed fields. You define it like a class inheriting from NamedTuple, with each annotated attribute becoming a field. Default values are supported. Instances are accessible both by name and by index since NamedTuple is a subclass of tuple. Attempting to assign to a field raises an AttributeError at runtime.
+
+Generic Functions with TypeVar.
+
+A TypeVar creates a placeholder type that the type checker resolves at each call site. It lets you say the return type is the same as the input type without losing specificity by falling back to Any.
+
+A TypeVar named T declared at module level can be used in any function. An identity function annotated as taking T and returning T tells the checker that passing an int produces an int and passing a str produces a str — the exact type is preserved. A first function returning the first element of a list of T returns T or None.
+
+A constrained TypeVar limits the types it can represent. TypeVar of Number constrained to int and float means the function only accepts those two types. A bounded TypeVar with bound equals a supertype means T must be a subtype of that type.
+
+Generic classes use Generic of T as a base class. A Stack class parameterised by T annotates its internal list as list of T, its push method as taking T and returning None, its pop method as returning T, and its peek as returning T-or-None. Instantiating it as Stack of int gives a stack where the checker enforces that only ints are pushed and that pop returns an int.
+
+Protocols — Structural Subtyping.
+
+A Protocol defines a structural interface: any class that has the required methods and attributes satisfies the protocol without needing to inherit from it. This is duck typing made explicit — the type checker enforces it statically.
+
+A Drawable protocol with a single draw method returning a string is satisfied by any class that implements draw, regardless of its inheritance chain. Neither Circle nor Square needs to inherit from Drawable — the checker is satisfied because both implement the method. Applying the runtime_checkable decorator to the protocol also enables isinstance checks at runtime.
+
+Protocols can require multiple methods and attributes. A Serializable protocol requiring both to_dict and from_dict methods is satisfied by any class that implements both. Functions that accept a Serializable parameter work with any conforming class without any explicit registration.
+
+Dataclass with Type Annotations.
+
+The dataclass decorator uses field annotations to generate dunder-init, dunder-repr, and dunder-eq automatically. Annotations are not optional here — they are what drives the code generation.
+
+Each annotated attribute in the class body becomes a constructor parameter in the same order. The field function with default_factory handles mutable defaults safely, avoiding the shared-mutable-default problem. ClassVar annotations are excluded from the generated constructor. The dunder-post-init method runs after the generated init and can compute derived fields.
+
+Using frozen=True produces an immutable dataclass. Its fields cannot be reassigned after construction. Frozen dataclasses are hashable by default, so they can be used as dictionary keys or set members.
+
+Special Annotation Forms.
+
+Cast tells the type checker to treat a value as a specific type without performing any runtime conversion. It is purely a hint — at runtime, cast simply returns the value unchanged.
+
+TYPE_CHECKING is a constant that is False at runtime but True when a type checker is running. Placing imports inside an if TYPE_CHECKING block means those imports are only processed by the checker, not when the module is loaded. This breaks circular import cycles and avoids the cost of importing heavy libraries that are only referenced in annotations.
+
+NoReturn annotates a function that never returns normally — it always raises an exception or runs an infinite loop. The checker uses this to understand that any code after a call to such a function is unreachable.
+
+The overload decorator lets you declare multiple call signatures for a single function. You write stub definitions decorated with overload for each signature, then a single undecorated implementation that handles all cases. The checker uses the stubs to infer the return type from the argument types; the implementation is not type-checked for its internal logic at the call site.
+
+Self and ParamSpec.
+
+The Self annotation, available since Python three point eleven, annotates methods that return an instance of their own class. This is important for fluent builder patterns and for methods like copy that should return the subclass type when called on a subclass. Without Self, return type annotations that name the class explicitly always refer to the base class, not the actual runtime type.
+
+ParamSpec captures the full parameter specification of a callable — names, types, and defaults — and allows it to be forwarded through a decorator without losing precision. A decorator annotated with ParamSpec preserves the parameter signature of the wrapped function, so the type checker still enforces the original argument types on callers of the decorated function.
+
+Annotating at Runtime.
+
+Annotations are accessible at runtime through the dunder-annotations attribute of functions and classes. The typing.get_type_hints function resolves forward references — string annotations and names that are not yet defined — to their actual type objects. It also applies any postponed evaluation of annotations.
+
+A practical use of runtime annotations is building generic validators. A validate_fields function can read the type hints of any object's class, retrieve each field's value, and check it with isinstance. This gives you a simple runtime type checker driven entirely by the annotations already present in the code.
+
+Gradual Typing and Practical Strategy.
+
+Type hints do not have to be all-or-nothing. Python supports gradual typing: annotate the parts that benefit most first and expand coverage over time.
+
+The highest priority is public API functions — return types and parameter types at module boundaries. This is where type errors propagate the farthest and where documentation value is highest. Internal implementation variables rarely need annotation.
+
+Use the type-colon-ignore comment to suppress checker errors, but always include the specific error code in brackets rather than a bare ignore. The code makes the suppression narrow and searchable. Reserve this for cases where you are certain the checker is wrong, not where the annotation is difficult to write.
+
+Use TYPE_CHECKING for imports that would be circular or expensive at runtime. This is particularly common in large codebases where type annotations reference classes across package boundaries.
+
+Avoid over-annotating internals. A function that processes a list of dicts and returns a list of strings does not need every local variable annotated. Focus annotations on the function signature — that is where the checker and the reader benefit most.
+
+Summary.
+
+Annotations use colon for variables and parameters and arrow for return types. They are stored in dunder-annotations and ignored by the runtime.
+
+Built-in generics since Python three point nine: list of int, dict of str to float, tuple of int and ellipsis. No imports needed.
+
+Union with pipe since Python three point ten: int-pipe-str, str-pipe-None. Optional of X is the older spelling of X-pipe-None.
+
+The typing module provides Any, Literal, Final, ClassVar, Callable, Sequence, and Mapping.
+
+TypedDict gives a dict typed keys. total=False makes all keys optional. NamedTuple is an immutable record with named, typed fields.
+
+TypeVar defines a type placeholder resolved per call. Constrain with specific types or bound for a supertype constraint. Generic of T makes a class generic.
+
+Protocols define structural interfaces. Any class with the required methods satisfies the protocol without inheriting. runtime_checkable enables isinstance checks.
+
+Dataclass uses annotations to generate dunder-init, dunder-repr, and dunder-eq. frozen=True adds immutability and hashability.
+
+Special forms: cast tells the checker a type without conversion, TYPE_CHECKING guards checker-only imports, NoReturn marks functions that never return, and overload declares multiple call signatures.
+
+Self annotates methods returning their own class. ParamSpec preserves parameter signatures through decorators.
+
+Gradual typing: annotate public APIs first, use type-ignore with a code sparingly, and expand coverage incrementally.
+
+In the next notebook, we cover concurrency with threading and asyncio — how Python runs multiple tasks concurrently, when to use threads versus async, and how to write correct concurrent code.

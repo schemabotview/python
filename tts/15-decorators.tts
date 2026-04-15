@@ -1,0 +1,105 @@
+A decorator is a callable that takes a function or class and returns a replacement. The at-sign decorator syntax is shorthand for reassigning the name: func equals decorator of func. Decorators let you add behaviour — logging, timing, caching, validation, retry logic — to existing functions without touching their source code. Because Python treats functions as first-class objects and supports closures, the entire mechanism is a natural consequence of the language itself. This notebook builds decorators from first principles, covers functools.wraps, decorator factories, stacking, class-based decorators, and a set of practical patterns you will reach for repeatedly.
+
+Functions Are First-Class Objects.
+
+Everything that makes decorators possible starts with one fact: functions are objects. They can be assigned to variables, stored in data structures, passed as arguments, and returned from other functions.
+
+You can assign a function to another variable and both names will refer to the same object. You can pass a function as an argument to another function, which can then call it. You can return a function from a function — make_adder takes a number and returns a new adder function that closes over that number. Each call to make_adder produces an independent adder.
+
+Closures — The Mechanism Behind Decorators.
+
+A closure is a nested function that remembers the variables from the enclosing scope even after that scope has returned. This is how wrappers keep hold of the original function.
+
+A make_counter function defines a local variable count and a nested increment function that reads and modifies it with nonlocal. It returns the inner function. Each call to make_counter creates a completely independent closure with its own count. The closed-over variables are stored in the dunder-closure attribute of the inner function.
+
+Building a Decorator from Scratch.
+
+A decorator is a function that accepts a function and returns a new function. Typically the returned function is a wrapper: it runs some extra code, calls the original, and returns the result.
+
+A timer decorator defines a wrapper function that records the time before the call, calls the original function with its arguments, records the time after, prints the elapsed duration, and returns the result. To apply it manually, you write: slow_sum equals timer of slow_sum. This reassigns the name slow_sum to the wrapper — the original function is captured inside the closure.
+
+The At-Sign Syntax.
+
+Placing at-sign decorator on the line immediately before a def is exactly equivalent to writing func equals decorator of func after the definition. It is syntactic sugar — cleaner and more visible.
+
+One problem: the wrapper function has its own name — wrapper — not the name of the original function. After decoration, checking fast_sum dot-dunder-name returns the string "wrapper" rather than "fast_sum". This matters for logging, debugging, and introspection tools.
+
+functools.wraps — Preserving Identity.
+
+The wrapper hides the original function's dunder-name, dunder-doc, dunder-module, and other attributes. Applying functools.wraps, passing the original function as its argument, to the wrapper copies all of these attributes from the wrapped function to the wrapper. Always use it.
+
+With functools.wraps applied, checking the decorated function's dunder-name and dunder-doc gives the original values. functools.wraps also sets a dunder-wrapped attribute on the wrapper pointing to the original function, which lets tools and introspection code bypass the decoration.
+
+Decorator Factories — Decorators with Arguments.
+
+To pass arguments to a decorator, add one more layer: a factory function that accepts the arguments and returns the actual decorator. There are now three levels of nesting: the factory, the decorator, and the wrapper.
+
+A repeat factory takes a count n and returns a decorator. The decorator wraps the function in a loop that calls it n times. Using it looks like at-sign repeat of three — the parentheses are on the factory call, not on the decorator itself. This is equivalent to writing say equals repeat of three, then calling that result with say.
+
+A retry factory is more practical. It takes the number of attempts, a tuple of exception types to catch, and an optional delay between attempts. The wrapper loops up to the limit, returns on the first success, and re-raises the last error when all attempts are exhausted.
+
+Stacking Decorators.
+
+Multiple at-sign decorator lines stack from bottom to top. The decorator closest to the function definition is applied first, then the one above it, and so on. Two text-formatting decorators illustrate this: applying italic first and then bold wraps the output in italic tags first and then bold tags. Reversing the order of the decorators reverses the nesting of the tags.
+
+Class-Based Decorators.
+
+A decorator can be any callable. A class with dunder-call defined is callable, making it a natural choice when the decorator needs to maintain state across calls.
+
+A CallCounter class implements dunder-init to store the original function and initialise a count, and dunder-call to increment the count and call the function. Applying functools.update_wrapper to self copies the metadata that functools.wraps would normally handle. After decoration, the call count is accessible as an attribute on the decorated name.
+
+A RateLimit class used as a decorator factory takes a maximum call count and a time window. Its dunder-call method defines the wrapper, which checks how many calls have occurred within the window and raises a RuntimeError if the limit is exceeded.
+
+Decorating Classes.
+
+Decorators work on classes too. The decorator receives the class object, can modify or replace it, and returns the result. This is a lighter-weight alternative to metaclasses for class-level transformations.
+
+A singleton decorator wraps the class in a function that checks a dictionary for an existing instance before calling the class constructor. The first call creates and caches the instance; all subsequent calls return the same one regardless of the arguments.
+
+An add_repr decorator adds a dunder-repr method to any class by attaching a function that formats the instance dictionary as a readable string. Applying it saves writing boilerplate dunder-repr methods on simple data classes.
+
+functools.cache and functools.lru_cache.
+
+The standard library ships two memoisation decorators that cache the results of function calls, keyed by their arguments.
+
+functools.cache provides an unbounded cache, available since Python three point nine. It is equivalent to lru_cache with maxsize set to None. functools.lru_cache with a maxsize argument keeps only the most recently used entries, evicting older ones when the cache is full.
+
+Memoising the recursive Fibonacci function transforms its complexity from exponential to linear. Without caching, computing fib of fifty requires over two-to-the-fifty recursive calls. With the cache, each unique argument is computed only once. The cache_info method on the decorated function reports how many hits and misses have occurred and the current cache size.
+
+Practical Patterns.
+
+A logged decorator wraps a function with entry and exit logging. It logs the function name and arguments before the call and the return value after, using the standard library logging module rather than print. If the function raises an exception, the decorator logs the error and re-raises it.
+
+A validate decorator factory accepts keyword arguments mapping parameter names to expected types. It uses the inspect module to bind the call arguments to the function's signature and then checks each named parameter against its expected type, raising a TypeError with a descriptive message if the check fails.
+
+A benchmark decorator records the duration of each call in a list, then attaches a stats method to the wrapper. The stats method computes the call count, mean, median, minimum, and maximum durations using the statistics module. This lets you call sort_random.stats to get a full performance summary after running the function several times.
+
+Decorators That Work With or Without Arguments.
+
+A common usability improvement is making a decorator work both as at-sign decorator with no parentheses and as at-sign decorator with arguments. The pattern uses a leading underscore sentinel parameter: if the first argument is a callable, the decorator was used without parentheses and should be applied immediately; if the first argument is None, it was called with parentheses and should return the decorator.
+
+Summary.
+
+A decorator is a callable that takes a function or class and returns a replacement. At-sign decorator is shorthand for func equals decorator of func.
+
+Functions are first-class: assignable, passable, returnable. Closures let inner functions remember variables from outer scopes — the mechanism that makes wrappers hold onto the original function.
+
+A decorator typically defines a wrapper that accepts star-args and double-star-kwargs, runs extra logic, calls the original with those arguments, and returns the result.
+
+Always apply functools.wraps to the wrapper. It copies dunder-name, dunder-doc, and dunder-qualname, and sets dunder-wrapped for introspection.
+
+Decorator factories add one more nesting level: a function that accepts arguments and returns the actual decorator. At-sign factory of arg is equivalent to func equals factory of arg applied to func.
+
+Stacking applies decorators bottom-up. The decorator closest to the def is applied first.
+
+Class-based decorators use dunder-call and are natural when state needs to persist across calls. Use functools.update_wrapper on self to replace functools.wraps.
+
+Class decorators receive the class object and can modify or replace it — lighter than metaclasses for most transformations.
+
+functools.cache and functools.lru_cache provide ready-made memoisation. Cache_info reports hits, misses, and cache size.
+
+Common patterns include timer, retry, logged, validate, benchmark, singleton, and rate_limit.
+
+To make a decorator work with and without parentheses, check whether the first argument is a callable using a keyword-only sentinel parameter.
+
+In the next notebook, we cover type hints and annotations — how to add static type information to Python code, what tools use it, and how to annotate functions, variables, generics, and protocols.
