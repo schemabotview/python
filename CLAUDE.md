@@ -3,9 +3,9 @@
 ## Role
 You are a Python expert and content creator. This repo contains educational content covering Python programming language concepts, targeting developers who want to build strong Python fundamentals and advance to professional-level Python skills.
 
-## Local Setup Requirements
+See `../CLAUDE.md` for shared notebook conventions, repo structure, audio generation, TTS guidelines, and content guidelines.
 
-To run notebooks locally, install these Python packages:
+## Local Setup
 
 ```bash
 pip install jupyter notebook
@@ -13,40 +13,10 @@ pip install jupyter notebook
 
 For topics that use additional libraries (e.g., data structures visualisation, type hints demos), install as needed per notebook.
 
-## Repo Structure
+## Content Guidelines
 
-- `*.ipynb` — Jupyter notebooks, one per Python topic. Each notebook contains:
-  - **Markdown cells** — theory, explanations, diagrams (in text), definitions
-  - **Code cells** — hands-on examples, Python snippets, or demos
-- `tts/` — Plain-text `.tts` files, one per topic, used as TTS source scripts
-- `audio/` — Pre-generated audio files (`.wav`) for each topic, generated from `.tts` files using ChatterboxTTS on Colab GPU
-
-## Notebook Conventions
-
-- Filename: `01-introduction-to-python.ipynb`, `02-variables-and-data-types.ipynb` — leading numbers control sort order
-- Each notebook covers a single topic
-- First cell must be a markdown cell that introduces the topic
-- Use markdown cells for explanations and theory, code cells for runnable Python examples
-- Outputs (stdout, etc.) can be included — the viewer renders them
-- Notebook filenames use kebab-case and are the single source of truth for naming — `.tts` and `.wav` files use the exact same stem (e.g., `01-introduction-to-python.ipynb` → `tts/01-introduction-to-python.tts` → `audio/01-introduction-to-python.wav`)
-
-## Audio Generation
-
-Audio is generated locally using ChatterboxTTS in the `chatterbox` conda environment.
-
-```bash
-# Generate audio for a single .tts file
-conda activate chatterbox && python scripts/generate_audio.py tts/01-intro-and-setup.tts
-
-# Regenerate even if .wav already exists
-conda activate chatterbox && python scripts/generate_audio.py tts/01-intro-and-setup.tts --force
-```
-
-Steps:
-1. Write/update the `.tts` file in `tts/`
-2. Run the command above (swap the filename for the topic you want)
-3. The `.wav` is saved to `audio/` with the same stem name
-4. Commit and push the generated `.wav`
+- Use Python 3.10+ syntax and idioms throughout
+- Use real-world analogies to explain Python concepts
 
 ## Topics Covered
 
@@ -72,16 +42,3 @@ Steps:
 | 18 | Testing with pytest | `18-testing-with-pytest.ipynb` | `18-testing-with-pytest.wav` |
 | 19 | Standard Library Essentials | `19-standard-library-essentials.ipynb` | `19-standard-library-essentials.wav` |
 | 20 | Python Best Practices | `20-python-best-practices.ipynb` | `20-python-best-practices.wav` |
-
-## Content Guidelines
-
-- Write theory in clear, beginner-friendly language
-- Use real-world analogies to explain Python concepts
-- Keep code examples practical and minimal — demonstrate the concept, not the full API
-- Use Python 3.10+ syntax and idioms throughout
-- Each notebook should be self-contained and readable top-to-bottom
-- `.tts` files should be plain prose (no markdown, no code) — they are read aloud by TTS
-
-## Frontend App
-
-This repo is consumed by the notebook frontend at `~/IdeaProjects/notebook`. It is registered in `src/config/concepts.ts` as concept ID `python` pointing to `schemabotview/python`. To author content, work directly in this repo — no changes to the frontend are needed when adding notebooks.
