@@ -70,6 +70,20 @@ The second way is a dot-py script. You write your code in a file ending in .py a
 
 The third way is a Jupyter notebook — exactly what you are reading right now. Notebooks mix runnable code cells with written explanation. You run code in small chunks, see output inline, and write notes alongside the code. It is the dominant tool in data science and education. You install it with pip install jupyter and launch it with jupyter notebook, which opens a browser interface where you can create and run notebooks.
 
+How Python Runs Your Code.
+
+When you run a Python file, more happens behind the scenes than you might expect. The standard Python interpreter — called CPython — takes your source code through several distinct stages before a single instruction executes.
+
+The first stage is your source code itself. This is the dot-py file you write — plain text that a human can read and understand.
+
+The second stage is the parser. The parser first breaks your text into individual tokens, the way a sentence is broken into words. It then builds something called an Abstract Syntax Tree, or AST — a structured tree that represents what your program means, not just how it is spelled. Think of it as the interpreter building a grammatical model of your code.
+
+The third stage is the compiler. The compiler walks that tree and emits bytecode — a compact stream of low-level instructions. These instructions are saved to a folder called pycache as dot-pyc files. The key point about bytecode is that it is platform-independent. The same bytecode file can run on any machine with the same Python version — the compiler only needs to run once per file, as long as the source has not changed.
+
+The fourth and final stage is the Python Virtual Machine, or PVM. This is a tight loop that fetches each bytecode instruction, decodes it, and executes it. This is the only stage where real computation actually happens.
+
+The reason Python caches bytecode is performance. On subsequent runs of an unchanged file, Python skips the parsing and compilation steps entirely and jumps straight to running the cached bytecode through the PVM.
+
 Hello, World.
 
 By tradition, the first program anyone writes in a new language prints the words "Hello, World!" to the screen. In Python, that is a single line — print with your message inside parentheses and quotes.
