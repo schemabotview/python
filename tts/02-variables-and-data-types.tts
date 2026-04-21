@@ -10,6 +10,14 @@ In Python, you create a variable with the assignment operator — a single equal
 
 You can assign numbers, text, or any other value. Python also lets you use underscores inside large numbers as a visual separator — they are ignored by the interpreter but make the number far easier to read at a glance.
 
+How Python Stores Variables in Memory.
+
+It is worth pausing here to understand what is actually happening inside Python when you write those three assignments. Python does not store a value directly inside the variable name. Instead, a name is a reference — a pointer — and the value it points to lives separately on the heap, which is the region of memory Python manages for objects.
+
+Each object on the heap carries three things: its type, so Python knows what operations are valid on it; its value, the actual data; and a reference count, which tracks how many names currently point to it. When the reference count drops to zero — meaning nothing in the program refers to that object any more — the garbage collector automatically reclaims the memory.
+
+The most important implication of this is that assignment never copies a value. When you write alias equals population, you are not creating a second copy of the number thirteen million, nine hundred and sixty thousand. You are creating a second name that points to the exact same object. That object now has a reference count of two. If you later write alias equals nine-nine-nine, only the pointer for alias moves — population still points to the original object, unchanged.
+
 Variables can be reassigned at any time. When you write score equals score plus five, Python reads the current value of score, adds five to it, and stores the result back under the same label.
 
 Naming Rules and Conventions.
