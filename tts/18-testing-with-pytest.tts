@@ -1,0 +1,123 @@
+pytest is the de-facto standard testing framework for Python. It discovers and runs your tests automatically, produces readable failure messages, and offers a fixture system that makes setup and teardown composable and reusable. This notebook starts from the basics of writing and running your first test, and builds through fixtures, parametrisation, mocking, and coverage reporting to the patterns you will encounter in real projects.
+
+Installation and discovery.
+
+Install pytest with pip install pytest. Once installed, pytest discovers your tests by recursing into your project directories, collecting any file whose name starts with "test underscore" or ends with "underscore test dot py", and within those files collecting any function whose name starts with "test underscore". Methods inside a class whose name starts with "Test" are also collected.
+
+From your project root you can run all discovered tests with just the pytest command. You can narrow the run to a specific directory or file by passing a path. The dash v flag gives verbose output showing each test name. The dash k flag filters tests by name substring — for example, dash k "addition" runs only tests whose name contains the word addition. The dash x flag stops after the first failure so you can focus on one problem at a time.
+
+Writing your first tests.
+
+A test is a plain function whose name starts with test underscore. Inside, you use Python's built-in assert statement. pytest rewrites assert at collection time so that when an assertion fails, the error message shows you the actual values on both sides — no need for special assertion methods.
+
+A typical set of tests for an add function checks positive numbers, negative numbers, and adding zero. Each test is small, focused on a single case, and has a name that reads like a sentence describing the expected behaviour.
+
+pytest dot approx — floating point comparisons.
+
+Floating-point arithmetic is imprecise. Direct equality comparison between floats will fail for values that are mathematically equal but differ by a tiny rounding error. The classic example is 0.1 plus 0.2, which is not exactly equal to 0.3 in floating-point representation.
+
+Use pytest dot approx instead of the double equals operator when comparing floats. It allows a small relative tolerance by default, around one part in a million. You can override this with a rel keyword for relative tolerance or an abs keyword for absolute tolerance. pytest dot approx also works on lists and dictionaries, comparing each element in turn.
+
+Testing exceptions.
+
+Use pytest dot raises as a context manager to assert that a block of code raises a specific exception type. If the exception is not raised, the test fails. If a different exception is raised, it propagates normally.
+
+You can pass a match keyword argument with a regular expression string. pytest will check that the exception message matches the pattern. You can also bind the context manager to a name and inspect the exception value after the with block by accessing dot value on the result.
+
+Fixtures.
+
+A fixture is a function decorated with at-sign pytest dot fixture. It provides a test with a resource — a database connection, a populated object, a temporary file — and handles setup and teardown automatically. Tests declare what fixtures they need simply by naming them as parameters. pytest matches parameter names to fixture names and injects the values.
+
+This approach makes dependencies explicit and composable. A test that needs a populated store simply declares it as a parameter. A different test that needs an empty store declares that instead. Each test is isolated because each gets its own fixture instance by default.
+
+Fixture teardown with yield.
+
+To add teardown code to a fixture, use yield instead of return. Everything before yield is setup code. The yielded value is what the test receives. Everything after yield is teardown code, and it runs regardless of whether the test passed or failed — similar to a finally block.
+
+This pattern is ideal for resources that need explicit cleanup: temporary files, database connections, server processes. The test author does not need to remember to clean up — the fixture handles it automatically.
+
+Fixture scope.
+
+By default, a fixture is created fresh for each test function that uses it. The scope parameter lets you widen this to once per class, once per module, or once per entire session. Use wider scopes for expensive setup that can safely be shared, such as a database connection or a compiled model.
+
+A function-scoped fixture can depend on a wider-scoped fixture. The wider-scoped fixture is created first and lives longer. This lets you share an expensive connection across many tests while still giving each test its own lightweight cursor or transaction.
+
+Parametrize — running one test with many inputs.
+
+The at-sign pytest dot mark dot parametrize decorator runs a test function multiple times with different arguments. You provide the parameter names as a string and a list of value tuples. Each tuple becomes one test case, appearing separately in the output with its own pass or fail result. A failure in one case does not prevent the others from running.
+
+You can supply an ids keyword argument with a list of strings to give each case a readable name in the output instead of auto-generated identifiers. Stacking multiple parametrize decorators generates the cartesian product — every combination of the two sets of values.
+
+Marks — skipping, expected failures, custom groups.
+
+The skip mark unconditionally skips a test. Provide a reason string to document why. The skipif mark skips conditionally — you pass an expression and a reason. A common use is to skip a test on Windows when the code uses a POSIX-only interface.
+
+The xfail mark means the test is expected to fail. A failing xfail test is reported as "xfail" rather than "FAILED" — it does not break your test run. If an xfail test unexpectedly passes, it is reported as "xpass". Setting strict equals True on an xfail mark turns an unexpected pass into an error, which is useful for tracking when a known bug gets fixed.
+
+Custom marks let you group tests by category. You might mark slow integration tests with at-sign pytest dot mark dot slow so you can exclude them during rapid development using dash m "not slow". Register custom marks in your pyproject dot toml to avoid a warning about unknown marks.
+
+Built-in fixtures.
+
+pytest ships with many built-in fixtures. The three most commonly used are tmp path, capsys, and monkeypatch.
+
+tmp path provides a pathlib dot Path pointing to a temporary directory that is unique to each test. pytest creates it before the test and cleans it up afterward. You do not need any teardown code.
+
+capsys captures what your code prints to standard output and standard error. Call capsys dot readouterr inside your test to get a named tuple with out and err attributes containing the captured text. This lets you assert on print output without mocking the print function.
+
+monkeypatch temporarily replaces attributes, environment variables, or functions. It restores everything to its original state after the test, so changes never bleed across tests. Common uses are setting an environment variable with setenv, deleting one with delenv, or replacing a function with setattr.
+
+Mocking with unittest dot mock.
+
+The unittest dot mock module provides objects that record all calls made to them. A Mock object returns another Mock for any attribute access or call. You configure it with return value to set what it returns, and side effect to set a list of values to return in sequence — or an exception to raise.
+
+After the test, you can make assertions on the mock. assert called once with checks that the mock was called exactly once with specific arguments. assert called once checks only the call count. call args gives you the arguments of the most recent call.
+
+The patch function temporarily replaces a name in a module. You use it as a context manager or as a decorator. The patched name reverts to its original after the block or function exits. This is the primary tool for isolating code from external services — replace the email sender, the HTTP client, or the database driver with a mock that returns controlled values.
+
+MagicMock is like Mock but additionally supports Python's magic methods, such as dunder len and dunder iter, making it usable wherever an object with a length or an iterable is expected.
+
+create autospec creates a mock that knows the interface of the real object. If your test code tries to call a method that does not exist on the original, the mock raises an AttributeError immediately, catching typos and interface drift at test time.
+
+Testing classes.
+
+Group related tests in a class whose name starts with "Test". The class has no dunder init — pytest instantiates it fresh for each test method. Fixtures still work as method parameters. An autouse fixture defined inside the class runs before every method, giving each test method a clean starting state without any explicit setup call.
+
+Conftest dot py — shared fixtures.
+
+pytest automatically loads conftest dot py files. Fixtures defined in conftest dot py are available to all tests in the same directory and all subdirectories without any import. A session-scoped database fixture in a top-level conftest is available to every test in the project. A module-scoped fixture in a subdirectory conftest is available only to tests in that subtree.
+
+The typical layout has a top-level tests directory with a conftest dot py that sets up session-wide resources like a database or HTTP client. Subdirectories for unit and integration tests each have their own conftest dot py for more specialised setup.
+
+Coverage — measuring what is tested.
+
+pytest-cov integrates coverage measurement into pytest. Run with the dash dash cov flag pointing at your source directory. The term-missing report prints a table showing which lines were not executed. The html report generates a browsable web page with line-by-line highlighting. The cov-fail-under flag fails the test run if total coverage falls below a threshold.
+
+Configure coverage in pyproject dot toml. Setting branch equals true measures whether both branches of every if statement were taken, not just whether the line was reached. Use the exclude lines list to skip lines that are intentionally untested — type checking guards, abstract method placeholders, and pragmatic "no cover" annotations.
+
+One important caveat: one hundred percent coverage does not mean bug-free. Coverage tells you which lines were executed, not whether the behaviour is correct. High coverage on business logic is valuable. Accept lower coverage for glue code, command-line entry points, and error paths that are difficult to trigger in a test environment.
+
+Testing patterns and best practices.
+
+The Arrange, Act, Assert pattern gives every test a clear three-part structure. The arrange section sets up the objects and state the test needs. The act section performs the single operation being tested. The assert section verifies the result. A blank line between each section makes the structure visible at a glance.
+
+A test can have multiple assertions if they all verify the same behaviour. If they verify different behaviours, split them into separate tests. When a test fails, the name and the failing assertion together should tell you exactly what went wrong without reading the full body.
+
+Name tests like sentences. "test add returns sum of two integers" is more useful than "test add" when you are scanning a failure report in continuous integration.
+
+Avoid logic inside tests. No if statements, for loops, or try-except blocks in test bodies. If you need to verify many cases, use parametrize. Logic in tests makes them hard to reason about and introduces the possibility of bugs in the tests themselves.
+
+Keep tests independent. Each test must be able to run in isolation and in any order. Tests that depend on the side effects of other tests are fragile and difficult to debug. Fixtures exist precisely to make independent setup easy and repeatable.
+
+Summary.
+
+pytest discovers tests in files matching the test underscore naming convention and runs functions starting with test underscore. Use plain assert statements — pytest rewrites them to show actual values on failure. Use pytest dot approx for float comparisons.
+
+pytest dot raises asserts that a block raises a specific exception. Pass match equals to check the error message.
+
+Fixtures are decorated functions that provide resources to tests. Use yield to separate setup from teardown. Fixture scope controls reuse — function, class, module, or session.
+
+At-sign pytest dot mark dot parametrize runs one test with multiple argument sets. skip, skipif, and xfail control execution and expected failure. Custom marks group tests for selective running.
+
+Built-in fixtures tmp path, capsys, and monkeypatch cover temporary files, output capture, and attribute substitution. unittest dot mock dot Mock and patch isolate code from external dependencies. create autospec enforces interface correctness on mocks.
+
+conftest dot py shares fixtures across test files without imports. pytest-cov measures line and branch coverage. Follow Arrange, Act, Assert, keep tests independent, name them like sentences, and test behaviour rather than implementation details.

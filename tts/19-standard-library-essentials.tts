@@ -1,0 +1,157 @@
+Python ships with a comprehensive standard library — often called "batteries included". You rarely need a third-party package for common tasks because the tools are already there, well-tested, and maintained by the core team. This notebook covers the modules you will reach for most often in real projects: collections for specialised containers, itertools and functools for functional utilities, datetime for time handling, re for pattern matching, json for serialisation, logging for structured output, dataclasses for data containers, contextlib for resource management, and subprocess for running shell commands.
+
+The collections module.
+
+The collections module extends Python's built-in dict, list, and tuple with containers optimised for specific patterns.
+
+Counter counts hashable objects. You pass it any iterable — a list of words, a string of characters, a sequence of events — and it returns a mapping from each item to the number of times it appeared. Accessing a missing key returns zero rather than raising a KeyError, which makes counting idioms very clean. The most common method returns the top n items as a list of item-count pairs. Counter supports arithmetic: adding two counters sums their counts, subtracting keeps only positive results, intersection takes the minimum count for each shared item, and union takes the maximum.
+
+defaultdict is a subclass of dict that calls a factory function whenever a missing key is accessed, instead of raising a KeyError. You pass the factory as the first argument — list, int, set, or any zero-argument callable. A common use is grouping: iterating over items and appending each to the list at its key, without ever needing to check whether the key exists first.
+
+namedtuple creates a subclass of tuple whose fields have names. You get attribute access like a class and index access like a tuple, with no overhead beyond a regular tuple. The underscore replace method returns a new instance with specific fields changed — useful for immutable records where you want to "update" one value. A particularly clean use is as a return type for functions that logically return multiple values with distinct meanings.
+
+deque is a double-ended queue that supports appending and popping from both ends in constant time. A regular list can append to the right in constant time, but inserting or removing from the left takes linear time because every element must shift. deque fixes that. Setting a maxlen creates a fixed-size sliding window: when the deque is full and you append a new item, the oldest item at the other end is automatically dropped. This is the right structure for keeping the last N items from a stream.
+
+ChainMap lets you view multiple dicts as a single mapping without copying any data. Lookups search the maps in order — the first one that contains the key wins. A common use is layering configuration: environment-specific overrides on top of application defaults, with user preferences on top of both.
+
+The itertools module.
+
+itertools provides memory-efficient building blocks for working with iterators. All of its functions return lazy iterators — they produce values on demand and never build a full list in memory.
+
+chain concatenates multiple iterables into a single sequence. chain dot from iterable does the same but accepts one iterable of iterables, which is useful when you are building the list of sources dynamically.
+
+islice gives you a lazy slice of any iterator. You can pass start, stop, and step, just like the built-in slice, but islice works on any iterator — not just sequences. Combined with count, which is an infinite counter, islice is how you take the first N values from an infinite sequence.
+
+cycle repeats an iterable indefinitely, wrapping back to the beginning after the last item. repeat yields the same value a given number of times, or forever if no count is given.
+
+The combinatoric iterators generate arrangements and selections. product computes the cartesian product of its inputs — equivalent to nested for loops. permutations generates all ordered arrangements of a given length. combinations generates unordered selections without repetition. combinations with replacement allows the same element to appear more than once in a selection.
+
+groupby groups consecutive elements that share a key. The critical requirement is that the input must be sorted by the same key you are grouping on — groupby only creates a new group when the key changes, so unsorted input will produce duplicate groups. A typical use is computing per-group aggregates: sort a list of records by a field, then iterate over groupby to process each group.
+
+accumulate computes a running aggregate. By default it sums, but you can pass any binary function — running maximum, running product, or a custom reduction. takewhile yields items while a predicate holds true, stopping at the first item that fails. dropwhile skips items while the predicate holds, then yields everything from the first failure onward.
+
+The functools module.
+
+functools provides tools for working with functions as first-class values.
+
+reduce folds a sequence into a single value by applying a binary function repeatedly. It takes the first two elements, applies the function, then applies the function to the result and the third element, and so on. You can supply an initial value as a third argument, which is also the result returned for an empty sequence.
+
+partial creates a new callable with some arguments pre-filled. If you have a function that takes a base and an exponent, you can create a "square" function by partially applying the exponent as two. This is cleaner than writing a one-line lambda and makes the intent explicit.
+
+lru cache memoises a function's results. On each call it checks whether the arguments have been seen before. If yes, it returns the cached result immediately. If no, it calls the function, caches the result, and returns it. The maxsize parameter controls how many entries the cache holds. Once full, the least recently used entry is evicted to make room. Setting maxsize to None disables eviction entirely — the cache grows without bound. lru cache is ideal for recursive computations with overlapping subproblems, like Fibonacci numbers, and for expensive pure functions called repeatedly with the same arguments.
+
+cached property computes a property value once on first access and then stores the result directly in the instance's attribute dictionary. Subsequent accesses find the value there and skip the computation entirely. This is the right tool for a property that is expensive to compute, deterministic, and unlikely to change for the life of the instance.
+
+wraps is a decorator you apply inside your own decorators to copy the wrapped function's name, docstring, and annotations onto the wrapper. Without it, introspection tools and documentation generators see the wrapper function instead of the original.
+
+The datetime module.
+
+The datetime module provides three primary types: date, which holds a year, month, and day; time, which holds an hour, minute, second, and microsecond; and datetime, which combines both. All three are immutable. timedelta represents a duration — a number of days, seconds, and microseconds.
+
+date dot today returns today's date. datetime dot now returns the current local date and time without timezone information. datetime dot now with timezone dot utc returns a timezone-aware object in UTC, which is usually what you want when storing or transmitting timestamps.
+
+timedelta supports arithmetic. You can add or subtract a timedelta from a date or datetime to get a new date or datetime. Subtracting two dates or datetimes gives a timedelta. Comparing two datetimes with less-than or greater-than works naturally, and you can pass them to min, max, and sorted.
+
+strptime parses a string into a datetime using a format string with directive codes: percent Y for a four-digit year, percent m for a two-digit month, percent d for a two-digit day, percent H for a 24-hour hour, percent M for minutes, and percent S for seconds. fromisoformat parses ISO 8601 strings directly without a format string. strftime goes in the other direction: it formats a datetime as a string using the same codes.
+
+Timezone-aware datetimes carry a tzinfo attribute that records the UTC offset. Always use timezone-aware datetimes in code that crosses time zones or stores timestamps in a database. The astimezone method converts a datetime from one timezone to another. timestamp returns the number of seconds since the Unix epoch, and fromtimestamp reconstructs a datetime from that number.
+
+Regular expressions.
+
+The re module provides Perl-compatible regular expressions. A pattern is a string using special characters to describe a structure — digit sequences, word boundaries, character classes, quantifiers, and alternation.
+
+match checks for a match only at the start of the string. search scans the entire string and returns the first match. fullmatch requires the entire string to match. findall returns a list of all non-overlapping match strings. finditer returns an iterator of match objects, which is more memory-efficient for large inputs. sub replaces every match with a replacement string or the return value of a replacement function.
+
+A match object has a group method that returns the matched text. Group zero is the full match. Numbered groups correspond to parenthesised subexpressions in the pattern. Named groups, written as a question mark followed by P and the name in angle brackets, let you retrieve captured text by name using the groupdict method.
+
+Compiling a pattern with re dot compile returns a pattern object. Calling match, search, findall, or sub on the pattern object is equivalent to calling the module-level functions, but reuses the compiled pattern, which is more efficient when the same pattern is used many times.
+
+Common flags modify matching behaviour. IGNORECASE makes letter matching case-insensitive. MULTILINE changes the meaning of the caret and dollar anchors so they match the start and end of each line rather than the whole string.
+
+The json module.
+
+json converts Python objects to JSON text and back. The four key functions are dumps, which serialises to a string; loads, which deserialises from a string; dump, which writes to a file object; and load, which reads from a file object.
+
+The type mapping is straightforward: Python dicts become JSON objects, lists and tuples become JSON arrays, strings stay strings, integers and floats become JSON numbers, True and False become true and false, and None becomes null.
+
+json does not know how to serialise types outside this set — datetime objects, custom classes, Decimal values. There are two ways to handle them. You can subclass json dot JSONEncoder, override the default method, check the type, and return a serialisable value. Or you can pass a default keyword argument to dumps with a function that does the same thing. On the way back, the object hook parameter of loads receives each JSON object as a dict and can return any Python value in its place.
+
+The logging module.
+
+The logging module replaces print for diagnostic output in production code. Messages have a severity level: DEBUG for fine-grained detail, INFO for normal operational events, WARNING for something unexpected that does not prevent the program from working, ERROR for a failure in one part of the program, and CRITICAL for a failure that may prevent the program from continuing.
+
+Every Python module should create its own logger using logging dot getLogger with the module name. Loggers are organised in a dot-separated hierarchy: a logger named "myapp dot database" is a child of "myapp", which is a child of the root logger. A message propagates up the hierarchy until it reaches a logger with a handler.
+
+Handlers determine where messages go. StreamHandler writes to the console. FileHandler writes to a file. RotatingFileHandler and TimedRotatingFileHandler manage log rotation automatically. Each handler has its own level filter, so you can send INFO and above to the console and DEBUG and above to a file simultaneously.
+
+Formatters control the layout of each log line. The format string uses percent-style placeholders: percent name for the logger name, percent levelname for the severity, percent message for the message text, and percent asctime for the timestamp.
+
+The exception method on a logger is a shortcut that logs at ERROR level and automatically appends the current exception's traceback. Never swallow exceptions silently with a bare except pass — at minimum, log them.
+
+The dataclasses module.
+
+The dataclass decorator generates boilerplate methods for classes that primarily hold data. By default it generates dunder init, dunder repr, and dunder eq based on the annotated fields. This eliminates dozens of lines of repetitive code.
+
+Fields are declared as class-level annotations. An annotation with a plain value becomes a field with a default. Mutable defaults like lists and dicts must use the field function with a default underscore factory argument — this ensures each instance gets its own list rather than sharing one across all instances.
+
+The dunder post init method, if defined, is called at the end of the generated dunder init. Use it for validation, computed fields, or any setup that depends on the constructor arguments.
+
+Setting frozen to True makes instances immutable — assigning to a field raises an error — and also generates dunder hash, making instances usable in sets and as dict keys. Setting order to True generates the four comparison methods based on the field order, so you can sort a list of instances or use min and max.
+
+The asdict and astuple utility functions convert a dataclass instance to a dict or tuple recursively. The replace function returns a new instance with specific fields changed, similar to namedtuple's underscore replace method.
+
+The contextlib module.
+
+contextlib provides tools for creating and working with context managers.
+
+The contextmanager decorator turns a generator function into a context manager. You write setup code before the yield, yield the value the with block receives, and write teardown code after the yield. The teardown runs in a finally clause implicitly, so it executes even if the body raises an exception.
+
+suppress takes one or more exception types and silently catches them if they are raised inside the with block. This is a clean alternative to a try-except-pass pattern, especially for expected failures like deleting a file that might not exist.
+
+nullcontext is a no-op context manager that accepts an optional value to yield. Its purpose is to allow optional context managers: you can write code that uses a lock if one is provided, and a nullcontext otherwise, without branching at the usage site.
+
+ExitStack manages a dynamic number of context managers. You call enter underscore context on the stack inside a with block, and every manager registered that way will be properly exited when the stack exits. This is useful when the set of resources to manage is only known at runtime — for example, opening a variable number of files.
+
+The math, statistics, and random modules.
+
+The math module provides mathematical constants and functions. The constants pi, e, tau, inf, and nan are available as attributes. Common functions include sqrt, floor, ceil, trunc, factorial, gcd, and lcm. The log function takes a base as its second argument; log10 and log2 are convenience variants. Trigonometric functions take arguments in radians — use degrees and radians to convert. isclose is the correct way to compare floats for approximate equality, with configurable relative and absolute tolerances. isinf and isnan test for infinity and not-a-number values.
+
+The statistics module computes descriptive statistics on a sequence of numbers. mean returns the arithmetic average. median returns the middle value, interpolating for even-length sequences. mode returns the most common value. stdev and variance compute the sample standard deviation and variance. pstdev computes the population standard deviation. quantiles divides the data into equal-probability intervals — passing n equals four gives the quartiles. In Python 3.10 and later, correlation returns the Pearson correlation coefficient between two sequences, and linear regression returns the slope and intercept of the best-fit line.
+
+The random module generates pseudo-random numbers. It is not cryptographically secure — do not use it for passwords, tokens, or security-sensitive values. random returns a float in the range from zero up to but not including one. uniform returns a float in a given range. randint returns a random integer in a closed interval. choice picks one item from a sequence. choices picks k items with replacement. sample picks k items without replacement. shuffle rearranges a list in place. gauss generates normally distributed floats.
+
+For cryptographic purposes, use the secrets module. token hex and token urlsafe generate URL-safe random tokens of a given byte length, and randbelow generates a cryptographically secure random integer below a given bound.
+
+The subprocess module.
+
+subprocess dot run is the standard interface for launching an external process and waiting for it to finish. Pass the command as a list of strings — the first element is the executable, the rest are its arguments. Never pass user-supplied data through shell equals True, as this opens the door to shell injection. Pass capture underscore output equals True to collect standard output and standard error as strings when combined with text equals True. The return code attribute holds the process's exit status.
+
+Passing check equals True tells run to raise a CalledProcessError if the process exits with a non-zero status. The exception carries the return code and the captured stderr, making it easy to surface the failure.
+
+The input keyword argument lets you pipe a string into the process's standard input. The timeout keyword argument specifies a deadline in seconds; if the process has not finished by then, a TimeoutExpired exception is raised and the process is killed. The env keyword argument lets you supply a modified copy of the environment.
+
+Use Popen directly when you need to interact with a running process — reading its output line by line as it arrives, writing to its standard input while it runs, or piping the output of one process into the input of another. Popen gives you full control but requires you to manage the process lifecycle explicitly: always call communicate or wait, and close pipe ends you are not using to avoid deadlocks.
+
+Summary.
+
+The collections module provides Counter for counting, defaultdict for grouping without key checks, namedtuple for lightweight immutable records, deque for efficient double-ended queues, and ChainMap for layered mappings.
+
+itertools provides lazy iterator combinators: chain, islice, cycle, product, combinations, permutations, groupby, accumulate, takewhile, and dropwhile. All produce values on demand without building intermediate lists.
+
+functools provides reduce for folding sequences, partial for pre-filling arguments, lru cache for memoisation, cached property for lazy computed attributes, and wraps for preserving metadata in decorators.
+
+datetime provides immutable date, time, and datetime types. timedelta represents durations and supports arithmetic with date and datetime. strptime parses strings, strftime formats them, and fromisoformat handles ISO 8601. Always use timezone-aware datetimes when crossing time zones.
+
+re provides match, search, findall, finditer, and sub. Use named groups for readable patterns. Compile patterns with re dot compile when reusing them. IGNORECASE and MULTILINE are the most commonly needed flags.
+
+json converts Python objects to and from JSON text. Extend the encoder or pass a default function to handle custom types. Use object hook to decode them on the way back.
+
+logging organises output by severity level and routes messages through named loggers to handlers. Use getLogger with the module name in every module. Use logger dot exception to capture tracebacks automatically.
+
+dataclasses generates init, repr, and eq from field annotations. field with default underscore factory handles mutable defaults. Post init runs after construction. frozen makes instances immutable and hashable. order generates comparison methods.
+
+contextlib provides contextmanager to build context managers from generators, suppress to silently ignore specific exceptions, nullcontext as a no-op manager, and ExitStack for dynamic collections of managers.
+
+math provides constants and functions for numeric computation. statistics computes descriptive statistics including mean, median, standard deviation, and correlation. random generates pseudo-random values for simulation and sampling. Use secrets for cryptographic randomness.
+
+subprocess dot run launches external processes and waits for them to complete. Use capture underscore output, text, check, timeout, and env to control the interaction. Use Popen for streaming output or process pipelines.
