@@ -1,0 +1,147 @@
+Writing Python that works is the starting point. Writing Python that is readable, maintainable, and correct six months later — by you or a teammate — is the real goal. This notebook distils the habits, idioms, and tooling choices that professional Python developers rely on: following PEP 8, writing Pythonic code, handling errors well, using type hints effectively, structuring projects for growth, writing useful documentation, profiling before optimising, keeping code secure, and applying tooling that enforces these standards automatically.
+
+PEP 8 — the style guide.
+
+PEP 8 is Python's official style guide. Consistent formatting makes code easier to read at a glance, reduces cognitive load during reviews, and lets automated tools enforce rules so humans can focus on logic.
+
+The naming conventions are straightforward. Variables, functions, and methods use snake case — all lowercase with underscores between words. Classes use Pascal case — each word capitalised with no separators. Constants use upper snake case — all uppercase with underscores. A single leading underscore signals a private attribute or method. A double leading underscore triggers Python's name mangling, which is rarely needed. The dunder names with double underscores on both sides are reserved for special methods like dunder init and dunder repr.
+
+The most important formatting rules: indent with four spaces, never tabs. Keep lines to a maximum of 88 characters — the width that Black uses by default. Put two blank lines around top-level definitions and one blank line between methods inside a class. Place imports at the top of the file, one per line, in three groups: standard library first, then third-party packages, then local application imports. Separate the groups with a blank line. Never use the equality operator to compare a value with True, False, or None — use truthiness directly for booleans and the is operator for None. Check whether a collection is empty by testing it directly in an if statement, not by comparing its length to zero.
+
+Pythonic idioms.
+
+Pythonic means using the language's built-in features and conventions the way they were designed — not translating patterns from Java or C. Pythonic code is shorter, clearer, and often faster.
+
+The Easier to Ask Forgiveness than Permission style is the Python way. Rather than guarding every operation with an if-check before attempting it, you try the operation and handle the exception if it fails. For simple cases, the dict get method with a default value is the cleanest option of all.
+
+Starred unpacking lets you split a sequence into parts with a single assignment. You can assign the first element to one name, collect everything in the middle into a list with a star, and assign the last element to another name. The underscore convention marks parts you are intentionally ignoring.
+
+Prefer enumerate over manually tracking an index with a counter variable. Prefer zip over manually indexing into parallel sequences. Both make the intent clear and eliminate the possibility of an off-by-one error. When you need to zip sequences of different lengths, zip longest from itertools fills missing values with a placeholder you specify.
+
+The walrus operator, written as a colon followed by an equals sign, lets you assign a value inside an expression. A common use is in an if statement where you need to both test whether a regular expression matches and use the match object inside the body. Another use is in a while loop where you want to read from a stream until it returns an empty value. Without the walrus operator, both patterns require either repeating the call or splitting it across two lines.
+
+Use Python's built-in functions instead of reinventing them. min, max, and sum work on any iterable. any returns True if at least one element satisfies a predicate. all returns True if every element does. sorted with a key argument lets you sort by a derived value — by length, by a case-normalised version, or by any computed property — without modifying the original sequence. The dict merge operator, a single pipe character introduced in Python 3.9, merges two dicts into a new one with the right operand's values winning on conflicts.
+
+Error handling.
+
+Good error handling communicates what went wrong, to whom, and what they can do about it.
+
+Catch the most specific exception possible. A bare except clause — with no exception type at all — catches everything, including KeyboardInterrupt and SystemExit, which should never be silently swallowed. Catching the broad Exception class is almost as bad — it obscures bugs and makes debugging much harder. Catch the specific types you expect: FileNotFoundError when a file might not exist, JSONDecodeError when parsing might fail. Respond to each with an appropriate action.
+
+When you catch a low-level exception and raise a higher-level one, use the from syntax to chain them. This preserves the original exception as the cause attribute of the new one, so the full chain of events is visible in the traceback. Without chaining, the original cause disappears.
+
+Build a custom exception hierarchy rooted in a project-specific base class. This lets callers choose their granularity: they can catch your base class to handle any application error, or catch a specific subclass to handle only one kind. Give custom exceptions structured attributes — a field name for a validation error, a resource type and identifier for a not-found error — so callers can inspect the details programmatically rather than parsing the message string.
+
+The else clause in a try statement runs only if no exception was raised in the try block. It is the right place for code that should only run on success. The finally clause always runs, regardless of whether an exception occurred, which makes it the right place for cleanup.
+
+Do not use exceptions for normal flow control. If you want the first element of a list or None if the list is empty, write a conditional expression — do not catch an IndexError from indexing an empty list. Exceptions should be exceptional.
+
+Type hints in practice.
+
+Type hints improve readability, enable IDE autocompletion, and allow static analysis tools to catch bugs before runtime. The goal is hints that add value without becoming noise.
+
+In function signatures, use abstract types from the collections dot abc module rather than concrete built-in types. Writing Sequence instead of list means your function accepts lists, tuples, and any other sequence — it is more general without any extra code. Writing Mapping instead of dict accepts any mapping type. Writing Callable instead of function accepts any callable.
+
+TypeVar enables generic functions — functions that preserve the type of their input in their output, without losing information by typing everything as object.
+
+Protocol enables structural typing. A Protocol class defines a set of methods. Any class that implements those methods satisfies the protocol, without needing to inherit from it. This is duck typing made explicit and checkable.
+
+Literal restricts a parameter to a fixed set of values. A static type checker will flag any call that passes a value outside the set.
+
+TypedDict documents the structure of dictionaries. It gives you type checking on dict access without converting to a full class. NamedTuple with annotations is a typed alternative to namedtuple that uses the same class definition syntax as a dataclass.
+
+Writing good docstrings.
+
+A docstring is a string literal as the first statement in a module, class, or function. It becomes the object's doc attribute and is shown by the built-in help function. It is also extracted by documentation generators.
+
+Document the contract — what the function does, what inputs it expects, what it returns, what exceptions it raises. Do not document the implementation — that is what the code is for.
+
+The Google docstring style is readable directly in source. It uses labelled sections: Args for parameters, Returns for the return value, and Raises for exceptions the function may raise. Keep each description concise. A one-line summary at the top, a blank line, and then the sections.
+
+Embedding executable examples with the greater-than prompt syntax makes docstrings testable. The doctest module can extract and run these examples, turning your documentation into a lightweight test suite.
+
+Project structure.
+
+A well-structured project is navigable, testable, and deployable without confusion. The src layout is the recommended pattern for installable packages. The source code lives inside a src directory, which contains your package. Tests live in a separate tests directory at the same level. The pyproject dot toml file at the root is the single configuration file for everything: the build system, project metadata, dependencies, pytest settings, ruff settings, and mypy settings.
+
+The src layout forces you to install the package to import it, which catches packaging bugs early — if something works in your development environment but not after installation, you know immediately.
+
+Virtual environments isolate each project's dependencies. Use python dash m venv to create one, activate it, and install the package in editable mode with the dev extras using pip install -e with the dot in square brackets followed by dev. This gives you the package installed as a symlink to your source, so changes are reflected immediately without reinstalling.
+
+Performance — profile first, then optimise.
+
+The first rule of optimisation is to measure before changing anything. Intuitions about bottlenecks are frequently wrong. Python provides profiling tools that tell you exactly where time is spent.
+
+timeit measures small code snippets with high precision. You give it a setup string and a statement string, specify the number of repetitions, and it returns the total time. Use this to compare alternative implementations — list comprehension versus map versus a for loop — before committing to one.
+
+cProfile records a call graph for an entire program run. It shows you every function that was called, how many times, and how much time was spent inside it both directly and in its callees. Sort by cumulative time to find the functions at the top of the call chain that are consuming the most wall time.
+
+Generators are more memory-efficient than lists for large sequences. A list comprehension builds the entire sequence in memory at once. A generator expression produces one value at a time, using constant memory regardless of how many values it will yield. For operations like sum that consume a sequence one element at a time, the generator is equally convenient and far cheaper.
+
+The double underscores slots attribute on a class replaces each instance's dictionary with a fixed-size structure. Normally, every instance carries a dict to hold its attributes, which has overhead. Slots eliminates that overhead when your class has a small, fixed set of attributes and you create many instances. The trade-off is that you cannot add arbitrary attributes to an instance, and certain advanced features require explicit opt-in.
+
+String building by repeated concatenation with plus creates a new string object on each iteration, making the total cost quadratic in the number of pieces. Instead, collect the pieces in a list and join them with the join method at the end, which allocates only once.
+
+Security basics.
+
+Security vulnerabilities often come from trusting user-supplied input too much, or from using convenient but unsafe functions.
+
+Never pass user-supplied input to eval or exec. These functions execute arbitrary Python code. An attacker who controls the input can import any module and run any command. If you need to evaluate a safe subset of expressions, use the ast module to parse the input into an abstract syntax tree, walk the tree to check that it contains only allowed node types, and only then compile and evaluate it.
+
+Always use parameterised queries for database access — never format user input directly into a SQL string. String-formatted queries are vulnerable to SQL injection: an attacker can craft an input that closes the current string literal and appends arbitrary SQL. Parameterised queries pass the value separately from the query text. The database driver escapes it, so it can never be interpreted as SQL syntax.
+
+Validate file paths before opening them. An attacker who controls a filename can supply a path with dot-dot segments to escape the intended directory and access sensitive files elsewhere on the filesystem. After resolving the absolute path, check that it is relative to the expected base directory and reject it if not.
+
+Use the secrets module for any value where predictability would be a security problem: session tokens, password reset links, API keys, CSRF tokens. The random module is seeded from the clock and is predictable by an attacker who knows approximately when the value was generated. secrets uses the operating system's cryptographically secure random source.
+
+When comparing a secret value provided by a user against a stored value, use hmac dot compare digest instead of the equality operator. A regular equality comparison exits as soon as it finds a mismatch, and an attacker can measure the response time to learn how many characters matched. compare digest always takes the same amount of time regardless of where the first difference is.
+
+Never store passwords in plain text. Never hash them with MD5 or SHA-1 — these algorithms are too fast, making brute-force attacks practical. Use a slow key derivation function like scrypt, bcrypt, or argon2 that is designed to be computationally expensive.
+
+Tooling.
+
+The best style guide is one enforced by tools, not argued about in code review. The modern Python toolchain is fast, opinionated, and integrates with every major editor and continuous integration system.
+
+ruff is a linter and formatter written in Rust. It checks for style violations, unused imports, undefined names, and dozens of other common mistakes. Running ruff format replaces Black as the code formatter. Both run in milliseconds even on large codebases.
+
+mypy performs static type checking. Given the type annotations in your code, it traces every call path and reports places where the types are inconsistent. Running mypy with the strict flag catches missing annotations and turns on all the optional checks.
+
+pytest is the test runner. pytest-cov integrates coverage measurement. Running pytest with the coverage flags produces a line-by-line report of which code was exercised.
+
+pre-commit runs a set of checks automatically before every git commit. You define the checks in a configuration file at the root of the repo. After running pre-commit install once, the hooks run on every commit without any manual step. Common hooks include ruff for linting, ruff format for formatting, mypy for type checking, and the pre-commit-hooks collection for basic file hygiene: removing trailing whitespace, ensuring files end with a newline, and detecting merge conflict markers.
+
+Design principles.
+
+Good code is not just syntactically correct — it is designed to be understood, extended, and deleted.
+
+The single responsibility principle says each function should do one thing. A function that validates input, transforms data, and writes to a database is harder to test, harder to reuse, and harder to change than three functions that each do one of those jobs. Split the validation, the transformation, and the side effect into separate functions. Compose them in a higher-level function that calls each in sequence.
+
+Don't Repeat Yourself is good advice, but premature abstraction is worse than duplication. The danger is abstracting two things that look similar but have different reasons to change. A shared function that handles formatting for invoices, reports, and API responses will grow a new branch every time a new context is added. Separate functions for each context are independent and can evolve without affecting each other. The rule of three is a useful heuristic: wait until something has been duplicated three times before extracting a shared abstraction.
+
+You Aren't Gonna Need It means you should not build for hypothetical future requirements. If the requirement does not exist today, do not add a plugin system, a configuration flag, or an abstraction layer for it. Add it when the actual requirement arrives, when you understand what it really needs.
+
+Dependency injection means passing dependencies into a function or class rather than hardcoding them inside. A class that creates its own email sender, database connection, or HTTP client cannot be tested without hitting the real service. A class that receives its collaborators as constructor arguments can be given a fake in tests, a mock in unit tests, and the real implementation in production — all without changing the class.
+
+Prefer immutable data structures where possible. Mutable shared state is the root of many subtle bugs: a function modifies a dict that was passed to it, and the caller's copy is now different from what it expected. Frozen dataclasses, named tuples, tuples instead of lists for fixed-size collections, and frozensets instead of sets for membership checks all make it impossible to accidentally modify data that should stay constant.
+
+Summary.
+
+PEP 8 defines naming conventions: snake case for functions and variables, Pascal case for classes, upper snake case for constants. Use four-space indentation and keep lines to 88 characters. Group imports in three sections. Use ruff format to stop debating formatting.
+
+Pythonic idioms: EAFP over LBYL, starred unpacking, enumerate and zip instead of manual indexing, the walrus operator for assign-and-test in one step, and built-in functions instead of manual loops.
+
+Error handling: catch specific exceptions, chain with raise from to preserve cause, build a project-specific exception hierarchy, use the else clause for success-only code, and use finally for cleanup.
+
+Type hints: use abstract types like Sequence and Mapping in signatures. Protocol provides structural typing. TypedDict documents dict shapes. Literal restricts to specific values. Run mypy with strict mode in continuous integration.
+
+Docstrings: document the contract with Args, Returns, and Raises sections. Embed runnable examples for doctest.
+
+Project structure: src layout, pyproject dot toml for all configuration, tests directory with conftest dot py, one virtual environment per project.
+
+Performance: measure with timeit and cProfile before optimising. Use generators for large sequences. Use slots for frequently instantiated classes. Join strings with join, not repeated concatenation.
+
+Security: no eval on user input, parameterised SQL queries, path traversal validation, secrets module for tokens, hmac dot compare digest for secret comparison, slow hashing for passwords.
+
+Tooling: ruff for linting and formatting, mypy for type checking, pytest with pytest-cov for testing, pre-commit for automatic enforcement on every commit.
+
+Design: single responsibility per function, DRY only when the abstraction is genuinely shared, YAGNI for hypothetical requirements, dependency injection for testability, and immutable data structures to prevent accidental mutation.
