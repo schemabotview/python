@@ -43,7 +43,16 @@
       "notebooks": [
         "14-iterators-and-generators",
         "15-decorators",
-        "16-type-hints-and-annotations"
+        "16-type-hints-and-annotations",
+        "17-concurrency-threading-asyncio"
+      ]
+    },
+    {
+      "title": "Tooling & Best Practices",
+      "notebooks": [
+        "18-testing-with-pytest",
+        "19-standard-library-essentials",
+        "20-python-best-practices"
       ]
     }
   ]

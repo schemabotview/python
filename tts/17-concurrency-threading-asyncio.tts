@@ -1,0 +1,81 @@
+Python gives you three distinct models for doing more than one thing at a time. Threading is for work that spends most of its time waiting — network calls, file reads, database queries. Multiprocessing is for work that burns the CPU — number crunching, image processing, data transformations. And asyncio is for high-concurrency I/O using cooperative coroutines on a single thread. Knowing which tool fits which problem — and why the GIL makes that choice matter — is the core skill this notebook builds.
+
+The Global Interpreter Lock.
+
+CPython has a Global Interpreter Lock, commonly called the GIL. It is a mutex that only one thread can hold at a time. The GIL exists to protect Python's internal reference-counting memory manager from concurrent modification. The consequence is that even if you have many threads in one process, only one of them can execute Python bytecode at any given moment — the others are waiting for the lock.
+
+For CPU-bound work this is a real limitation. Threads that want to crunch numbers end up queuing behind each other, giving you no speedup over a single thread. For I/O-bound work the GIL is almost irrelevant, because a thread releases the lock while it is blocked waiting on the operating system — waiting for a socket to receive data, for a file read to complete, or for a database to respond. Other threads can run freely during that wait.
+
+The multiprocessing module sidesteps the GIL entirely by spawning separate processes. Each process has its own Python interpreter and its own GIL, so all your CPU cores can work in parallel. asyncio takes a completely different approach: one thread, one event loop, cooperative multitasking — no GIL contention at all.
+
+Threading.
+
+The threading module lets you run a callable in a separate operating system thread. You create a Thread object, pass it a target function and any arguments, call start to launch it, and call join to wait for it to finish. The key insight from a timing perspective is that threads run concurrently during their sleep or I/O waits. Three threads each sleeping for one, two, and one-and-a-half seconds finish in roughly two seconds total — the duration of the longest sleep — rather than four-and-a-half seconds sequentially.
+
+For managing a pool of threads, the concurrent.futures module provides ThreadPoolExecutor. You give it a maximum number of workers, submit callables to it, and it handles scheduling. The as_completed function lets you process results as each task finishes rather than waiting for all of them.
+
+Race conditions and locks.
+
+Because threads share memory, you can run into race conditions. A race condition happens when the result of your program depends on the unpredictable order in which threads execute. The classic example is a shared counter: reading the current value, adding one to it, and writing the result back is three separate steps. If two threads do this simultaneously, both might read the same value and write the same incremented result — effectively losing one increment. Over many iterations this adds up to a significantly wrong answer.
+
+The fix is a Lock. Only one thread can acquire the lock at a time. You use a lock as a context manager — Python acquires it on entry and releases it on exit, even if an exception occurs. Any shared state that multiple threads read and write should be protected by a lock.
+
+The threading module also provides an Event, which is a simple signalling mechanism. One thread calls set on the event, and any other thread that called wait on it will unblock and continue. This is useful for a producer to announce that data is ready.
+
+For passing data between threads, queue dot Queue is the right tool. It is thread-safe by design — you put items in from one thread and get items out from another, with automatic blocking when the queue is empty or full. A common pattern is to put a sentinel value — typically None — to signal that the producer is done.
+
+Thread-local storage, provided by threading dot local, gives each thread its own private copy of a variable. Threads can read and write their local copy without affecting other threads. This is useful for per-thread state like database connections.
+
+Multiprocessing.
+
+For CPU-bound work, use multiprocessing. Each worker is a separate operating system process with its own interpreter, so all your CPU cores can run Python code simultaneously. The Pool class manages a pool of worker processes. You call pool dot map with a function and a list of inputs, and it distributes the work across processes and collects the results.
+
+ProcessPoolExecutor from concurrent.futures provides the same interface as ThreadPoolExecutor, making it easy to swap between threads and processes. The important constraint is that arguments and return values must be picklable — Python uses pickle to serialise data between processes, which adds overhead. Multiprocessing pays off when each task does enough computation to outweigh the serialisation cost.
+
+On Windows and macOS you must guard the entry point of your script with an if-name-equals-main check. This prevents the spawned worker processes from recursively re-running your script when they start up.
+
+asyncio.
+
+asyncio runs many tasks on a single thread using an event loop. Tasks voluntarily yield control at await points — when they are waiting on I/O. Because there is only one thread, there are no race conditions and no lock contention. The trade-off is that you must never call a blocking function directly inside a coroutine — doing so would stall the entire event loop and prevent all other tasks from running.
+
+A coroutine is a function defined with async def. Calling it returns a coroutine object — it does not execute until you await it or schedule it as a task. The await keyword suspends the current coroutine and returns control to the event loop, which can then run other coroutines until the awaited operation completes.
+
+asyncio dot run is the entry point. You pass it a coroutine — typically a main function — and it creates the event loop, runs the coroutine to completion, and closes the loop.
+
+asyncio dot gather takes multiple coroutines and runs them concurrently, collecting all their results into a list. The total time is approximately the duration of the longest coroutine, not the sum of all durations. By default, if any coroutine raises an exception, gather re-raises it immediately. Passing return exceptions as True changes this behaviour — all results including errors are collected and returned.
+
+create_task schedules a coroutine to run concurrently without immediately awaiting it. The task starts running as soon as the event loop gets control. You can await the task later to retrieve its result.
+
+Async context managers and iterators.
+
+Resources that require asynchronous setup and teardown implement the async context manager protocol — dunder aenter and dunder aexit. You use them with async with. This is common for database connections, HTTP sessions, and file handles in async libraries.
+
+An async generator uses yield inside an async def function. The caller iterates it with async for. Async comprehensions also work — you can write a list comprehension using async for inside square brackets.
+
+Timeouts and cancellation.
+
+asyncio dot wait_for wraps a coroutine with a deadline. If the coroutine does not finish within the timeout, a TimeoutError is raised and the coroutine is cancelled.
+
+You can cancel a running task by calling task dot cancel. This injects a CancelledError at the task's next await point. The task can catch CancelledError to do cleanup, but it must always re-raise it so the event loop knows the task actually stopped. A finally block in the coroutine will run regardless, making it the right place for cleanup code.
+
+asyncio synchronisation primitives.
+
+asyncio provides coroutine-safe equivalents of threading's synchronisation tools. asyncio dot Semaphore limits how many coroutines can run a particular section concurrently — useful for capping the number of simultaneous database connections or HTTP requests. asyncio dot Queue provides producer/consumer communication between coroutines, with awaitable put and get methods that yield control to the event loop while waiting.
+
+Running blocking code in asyncio.
+
+Sometimes you need to call a legacy synchronous library from within an async program. Calling it directly would block the event loop. The solution is loop dot run_in_executor — it runs the blocking call in a thread pool and returns an awaitable. You can await it like any other coroutine, and the event loop remains free to run other tasks while the thread pool handles the blocking work.
+
+Choosing the right model.
+
+The decision comes down to what kind of work you are doing. If you are making many network or database calls, asyncio is the most efficient — a single thread can handle thousands of concurrent connections with very low overhead. If you need to call a library that does not support async, threading works well since the GIL is released during I/O waits. If you are doing CPU-heavy computation, multiprocessing gives you true parallelism across all your cores. If you are mixing async code with blocking libraries, run_in_executor bridges the two worlds.
+
+A practical rule of thumb: waiting on the network or disk points to asyncio or threading; burning the CPU points to multiprocessing; calling a blocking library from async code points to run_in_executor.
+
+Summary.
+
+The GIL allows only one thread to execute Python bytecode at a time. Threads are effective for I/O-bound work because the GIL is released during waits. ThreadPoolExecutor simplifies managing a pool of threads. Race conditions on shared state are fixed with Lock. Event and Queue coordinate communication between threads. Thread-local storage gives each thread private state.
+
+Multiprocessing spawns separate processes with their own GIL, giving true CPU parallelism. ProcessPoolExecutor provides a clean interface with result futures. Data passes between processes via pickle.
+
+asyncio uses a single-threaded event loop with cooperative multitasking. Coroutines defined with async def yield at await points. asyncio dot gather runs coroutines concurrently and collects results. create_task schedules a coroutine immediately. async with and async for work with resources and generators that perform async operations. wait_for enforces timeouts. Semaphore limits concurrency. Queue provides safe producer/consumer communication. run_in_executor offloads blocking calls to a thread pool without stalling the event loop.
