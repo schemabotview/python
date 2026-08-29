@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react'
 import { SceneView } from '../render-engine'
 import type { Section } from '../content'
 import { getScene } from '../scenes'
@@ -23,15 +24,19 @@ export function SectionView({
   onHome,
   onPrev,
   onNext,
+  narrating = false,
+  onToggleNarration,
 }: {
   section: Section
-  capture?: boolean // ?capture=1: suppress the (interactive-only) drawer toggle + nav
+  capture?: boolean // ?capture=1: the footer shows GraphL + §n/N branding (video); else live controls
   eyebrow?: string // header eyebrow (e.g. "PYTHON · SETUP"); also the back-to-catalog link
   index?: number // 0-based position of this section in the course
   total?: number // total sections in the course
   onHome?: () => void // back to the catalog (wired to the eyebrow)
-  onPrev?: () => void // previous section (same as ← key) — drives the portrait nav pager
+  onPrev?: () => void // previous section (same as ← key) — drives the footer nav
   onNext?: () => void // next section (same as → key)
+  narrating?: boolean // is the section clip currently playing (drives the volume icon)
+  onToggleNarration?: () => void // play/pause narration (same as Space)
 }) {
   const [open, setOpen] = useState(false) // drawer state; only affects the portrait layout
   const scene = getScene(section.scene)
@@ -49,12 +54,41 @@ export function SectionView({
         )}
         <h1 className="reel-head__title">{section.title}</h1>
       </header>
-      <footer className="reel-foot">
-        <span className="reel-foot__brand">GraphL</span>
-        {total > 0 && (
-          <span className="reel-foot__count">
-            §{index + 1} / {total}
-          </span>
+      {/* Footer — under ?capture=1 it brands the video (GraphL + §n/N chapter mark); interactively it
+          becomes the live control bar: narration toggle (left) + prev/next (right). Raised above the
+          portrait drawer (reel-foot--controls) so nav works while the slide is open. */}
+      <footer className={`reel-foot${capture ? '' : ' reel-foot--controls'}`}>
+        {capture ? (
+          <>
+            <span className="reel-foot__brand">GraphL</span>
+            {total > 0 && (
+              <span className="reel-foot__count">
+                §{index + 1} / {total}
+              </span>
+            )}
+          </>
+        ) : (
+          <>
+            <button
+              className="reel-foot__ctrl"
+              onClick={onToggleNarration}
+              aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+              title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+            >
+              {narrating ? <Volume2 size={22} /> : <VolumeX size={22} />}
+            </button>
+            <span className="reel-foot__nav">
+              <button className="reel-foot__ctrl" onClick={onPrev} aria-label="Previous section (←)" title="Previous section (←)">
+                <ChevronLeft size={24} />
+              </button>
+              <span className="reel-foot__count reel-foot__count--live">
+                {index + 1} / {total}
+              </span>
+              <button className="reel-foot__ctrl" onClick={onNext} aria-label="Next section (→)" title="Next section (→)">
+                <ChevronRight size={24} />
+              </button>
+            </span>
+          </>
         )}
       </footer>
       <div className="scene-area">
@@ -71,19 +105,6 @@ export function SectionView({
         </button>
       )}
       <SlidePanel slide={section.slide} open={open} />
-      {/* Portrait nav pager — on-screen prev/next for touch devices (the ← / → keys have no mobile
-          equivalent). Portrait-only + capture-suppressed via CSS; sits above the drawer so it works
-          whether the slide is open or closed. */}
-      {!capture && (onPrev || onNext) && (
-        <nav className="slide-nav" aria-label="Section navigation">
-          <button className="slide-nav__btn" onClick={onPrev} aria-label="Previous section" disabled={!onPrev}>
-            ‹
-          </button>
-          <button className="slide-nav__btn" onClick={onNext} aria-label="Next section" disabled={!onNext}>
-            ›
-          </button>
-        </nav>
-      )}
     </div>
   )
 }

@@ -85,32 +85,39 @@ body {
   cursor: pointer;
 }
 
-/* Portrait nav pager — bottom-centre prev/next for touch (no arrow keys on mobile). Above the drawer
-   (z 11 > drawer z 10) so it works open or closed. Hidden in landscape (keyboard nav + clean capture)
-   and never rendered under ?capture=1. */
-.slide-nav {
-  position: absolute;
-  bottom: 3vh;
-  left: 50%;
-  transform: translateX(-50%);
+/* Footer control bar (interactive only; capture keeps the GraphL + §n/N branding). Raised above the
+   portrait drawer (z 11 > drawer z 10) so narration + nav stay usable while the slide is open. */
+.reel-foot--controls {
   z-index: 11;
-  display: flex;
-  gap: 14px;
+  align-items: center;
 }
-.slide-nav__btn {
-  width: 52px;
+.reel-foot__nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.reel-foot__ctrl {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
   height: 44px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(26, 29, 35, 0.9);
-  color: var(--fg);
-  font-size: 24px;
-  line-height: 1;
+  color: rgba(255, 255, 255, 0.82);
   cursor: pointer;
+  pointer-events: auto; /* the footer container is pointer-events:none; re-enable the buttons */
+  transition: color 0.15s, border-color 0.15s;
 }
-.slide-nav__btn:disabled {
-  opacity: 0.35;
-  cursor: default;
+.reel-foot__ctrl:hover {
+  color: var(--idx-accent);
+  border-color: var(--idx-accent);
+}
+.reel-foot__count--live {
+  pointer-events: none;
+  min-width: 3.5em;
+  text-align: center;
 }
 
 /* GraphL wordmark — top-left of the bare SCENE view; click or Esc → back to catalog. (The section
@@ -258,9 +265,6 @@ body {
   }
   .slide-toggle {
     display: none;
-  }
-  .slide-nav {
-    display: none; /* portrait-only affordance; landscape navigates by ← / → and stays capture-clean */
   }
   /* Restore the capture-tuned slide metrics (the base carries the larger portrait values). Scoped
      with .stage--section so it outranks the base .slide-panel__scaler rule, which is defined LATER
