@@ -84,10 +84,13 @@ body {
   line-height: 1;
   cursor: pointer;
   transition: color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
-.slide-toggle:hover {
-  color: var(--idx-accent);
-  border-color: var(--idx-accent);
+@media (hover: hover) {
+  .slide-toggle:hover {
+    color: var(--idx-accent);
+    border-color: var(--idx-accent);
+  }
 }
 .slide-toggle:focus:not(:focus-visible) {
   outline: none;
@@ -124,10 +127,15 @@ body {
   cursor: pointer;
   pointer-events: auto; /* the footer container is pointer-events:none; re-enable the buttons */
   transition: color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent; /* no grey/blue tap flash on mobile */
 }
-.reel-foot__ctrl:hover {
-  color: var(--idx-accent);
-  border-color: var(--idx-accent);
+/* Hover feedback only on real-pointer devices — on touch, :hover "sticks" after a tap and leaves the
+   icon highlighted until you tap elsewhere. */
+@media (hover: hover) {
+  .reel-foot__ctrl:hover {
+    color: var(--idx-accent);
+    border-color: var(--idx-accent);
+  }
 }
 /* Drop the focus ring on click/tap; keep a keyboard-only ring for accessibility. */
 .reel-foot__ctrl:focus:not(:focus-visible) {
