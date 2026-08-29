@@ -58,10 +58,10 @@ const LOGO_CANDIDATES = [
 const LOGO_SVG = LOGO_CANDIDATES.find(existsSync) ?? null
 
 // The concept shown as the panel kicker.
-const CONCEPT = process.env.CONCEPT ?? 'AWS'
-// The right-side panel gradient (brand block). AWS-warm by default — it rhymes with the slide's
-// title-orange and reads well against the Zed-slate scene on the left. Override per-thumb with --panel.
-const DEFAULT_PANEL_BG = 'radial-gradient(118% 104% at 70% 34%, #ff9d3c 0%, #e8791a 42%, #7a3b0c 100%)'
+const CONCEPT = process.env.CONCEPT ?? 'Python'
+// The right-side panel gradient (brand block). Python-blue by default — it echoes the language's
+// brand and reads well against the Zed-slate scene on the left. Override per-thumb with --panel.
+const DEFAULT_PANEL_BG = 'radial-gradient(118% 104% at 70% 34%, #4b8bbe 0%, #306998 42%, #16324a 100%)'
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 // A slug → display fallback ("data-engineering" → "Data Engineering") when the registry lacks it.
 const titleCase = (slug) => slug.split(/[-_]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')

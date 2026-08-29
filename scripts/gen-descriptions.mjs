@@ -34,13 +34,13 @@ const TAIL_MS = process.env.TAIL_MS ? +process.env.TAIL_MS : 500
 const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫']
 
 // The concept + where the app deploys (the catalog path + deep links). Overridable for a different
-// host: SITE default graphl.in, APP_PATH default the vite build base (/aws-content). Deep link is
+// host: SITE default graphl.in, APP_PATH default the vite build base (/python). Deep link is
 // `${SITE}${APP_PATH}/#/<course>` (hash routing, see src/App.tsx).
-const CONCEPT = process.env.CONCEPT ?? 'AWS'
+const CONCEPT = process.env.CONCEPT ?? 'Python'
 const SITE = process.env.SITE ?? 'https://graphl.in'
-const APP_PATH = (process.env.APP_PATH ?? '/aws-content').replace(/\/$/, '')
+const APP_PATH = (process.env.APP_PATH ?? '/python').replace(/\/$/, '')
 const HASHTAGS =
-  '#AWS #CloudComputing #AWSCertified #DevOps #CloudArchitecture #AmazonWebServices #Cloud #TechEducation'
+  '#Python #LearnPython #PythonProgramming #Coding #Programming #SoftwareDevelopment #PythonForBeginners #TechEducation'
 
 const titleCase = (slug) => slug.split(/[-_]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 // m:ss (or h:mm:ss past an hour) — YouTube chapter format; first chapter must be 0:00.
