@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Home, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react'
 import { SceneView } from '../render-engine'
 import type { Section } from '../content'
 import { getScene } from '../scenes'
@@ -62,14 +62,19 @@ export function SectionView({
           slide is open. */}
       {!capture && (
         <footer className="reel-foot reel-foot--controls">
-          <button
-            className="reel-foot__ctrl"
-            onClick={onToggleNarration}
-            aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
-            title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
-          >
-            {narrating ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </button>
+          <span className="reel-foot__grp">
+            <button className="reel-foot__ctrl" onClick={onHome} aria-label="Back to catalog (Esc)" title="Back to catalog (Esc)">
+              <Home size={17} />
+            </button>
+            <button
+              className="reel-foot__ctrl"
+              onClick={onToggleNarration}
+              aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+              title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+            >
+              {narrating ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </button>
+          </span>
           <span className="reel-foot__nav">
             <button className="reel-foot__ctrl" onClick={onPrev} aria-label="Previous section (←)" title="Previous section (←)">
               <ChevronLeft size={19} />
