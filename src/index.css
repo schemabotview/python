@@ -262,8 +262,10 @@ body {
   .slide-nav {
     display: none; /* portrait-only affordance; landscape navigates by ← / → and stays capture-clean */
   }
-  /* Restore the capture-tuned slide metrics (the base carries the larger portrait values). */
-  .slide-panel__scaler {
+  /* Restore the capture-tuned slide metrics (the base carries the larger portrait values). Scoped
+     with .stage--section so it outranks the base .slide-panel__scaler rule, which is defined LATER
+     in the file — at equal specificity that base would otherwise win here too. */
+  .stage--section .slide-panel__scaler {
     padding: 0 60px;
     --fs-body: 26px;
   }
