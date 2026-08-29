@@ -6,17 +6,16 @@ import { getScene } from '../scenes'
 import { SlidePanel } from './SlidePanel'
 
 // The SECTION view = the final composited output of a slug (course-section): the vertical scene +
-// the fixed-right slide, framed by a header/footer that is shared with the captured video (the
-// eyebrow + section title up top, GraphL brand + §n/N counter below). Layout is responsive (CSS):
-//   landscape (laptop → 4K video)  — scene fills the left, slide is a right column; header/footer
-//                                    brand the scene column (title lives in the slide, so it's hidden).
-//   portrait  (mobile → reel)      — scene fills the frame, slide is a right drawer toggled by ⟨; the
-//                                    header shows the full title card.
-// Under ?capture=1 the frame is clean for video: eyebrow + title on top, GraphL + §n/N branding
-// below, and NO interactive controls (the drawer toggle and the footer control bar are both
-// suppressed). Interactively, the footer becomes a control bar (narration toggle + prev/next), the
-// drawer toggle appears (portrait), and the eyebrow doubles as the "back to catalog" link. Keyboard
-// still works everywhere (← / → navigate, Space toggles narration).
+// the fixed-right slide, with an eyebrow + section title header. Layout is responsive (CSS):
+//   landscape (laptop → 4K video)  — scene fills the left, slide is a right column; the title lives
+//                                    in the slide, so the header shows just the eyebrow.
+//   portrait  (mobile → reel)      — scene fills the frame, slide is a full-width drawer toggled at
+//                                    top-right; the header shows the full title card.
+// Under ?capture=1 the frame is clean for video: just the eyebrow + title + scene — NO footer and NO
+// interactive controls (the drawer toggle and the footer control bar are both suppressed).
+// Interactively, a footer control bar carries Home + narration + prev/next (raised above the drawer
+// so it works while the slide is open), the drawer toggle appears in portrait, and the eyebrow also
+// links back to the catalog. Keyboard works everywhere (← / → navigate, Space toggles narration).
 export function SectionView({
   section,
   capture = false,
