@@ -171,6 +171,8 @@ export function App() {
         index={index}
         total={sections.length}
         onHome={goHome}
+        onPrev={() => go(-1)}
+        onNext={() => go(1)}
       />
     )
   } else {

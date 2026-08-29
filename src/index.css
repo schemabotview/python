@@ -54,7 +54,7 @@ body {
   top: 0;
   right: 0;
   height: 100%;
-  width: min(92%, 560px);
+  width: 100%; /* portrait: full-screen reading surface (landscape overrides to a 42% column) */
   display: flex;
   align-items: safe center;
   justify-content: center;
@@ -71,12 +71,11 @@ body {
 }
 .slide-toggle {
   position: absolute;
-  top: 50%;
-  right: 12px;
-  transform: translateY(-50%);
+  top: 14px;
+  right: 14px;
   z-index: 11;
-  width: 40px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(26, 29, 35, 0.9);
@@ -84,6 +83,34 @@ body {
   font-size: 22px;
   line-height: 1;
   cursor: pointer;
+}
+
+/* Portrait nav pager — bottom-centre prev/next for touch (no arrow keys on mobile). Above the drawer
+   (z 11 > drawer z 10) so it works open or closed. Hidden in landscape (keyboard nav + clean capture)
+   and never rendered under ?capture=1. */
+.slide-nav {
+  position: absolute;
+  bottom: 3vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 11;
+  display: flex;
+  gap: 14px;
+}
+.slide-nav__btn {
+  width: 52px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(26, 29, 35, 0.9);
+  color: var(--fg);
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+}
+.slide-nav__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 /* GraphL wordmark — top-left of the bare SCENE view; click or Esc → back to catalog. (The section
@@ -232,6 +259,14 @@ body {
   .slide-toggle {
     display: none;
   }
+  .slide-nav {
+    display: none; /* portrait-only affordance; landscape navigates by ← / → and stays capture-clean */
+  }
+  /* Restore the capture-tuned slide metrics (the base carries the larger portrait values). */
+  .slide-panel__scaler {
+    padding: 0 60px;
+    --fs-body: 26px;
+  }
 }
 
 /* --- Slide scaler + markdown ----------------------------------------------- */
@@ -241,9 +276,9 @@ body {
    capture legibility is a ONE-NUMBER change (adapted from the studio reveal-engine). */
 .slide-panel__scaler {
   box-sizing: border-box;
-  padding: 0 60px;
+  padding: 0 40px; /* portrait: trimmed side padding to fill the phone width (landscape restores 60) */
   color: #c8cdd6;
-  --fs-body: 26px;
+  --fs-body: 31px; /* portrait/reels: larger so the slide fills the phone (landscape restores 26) */
   --fs-title: calc(var(--fs-body) * 1.73);
   --fs-heading: calc(var(--fs-body) * 1.2);
   --fs-code: calc(var(--fs-body) * 0.78);

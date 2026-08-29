@@ -21,13 +21,17 @@ export function SectionView({
   index = 0,
   total = 0,
   onHome,
+  onPrev,
+  onNext,
 }: {
   section: Section
-  capture?: boolean // ?capture=1: suppress the (interactive-only) drawer toggle
-  eyebrow?: string // header eyebrow (e.g. "AWS · FOUNDATIONS"); also the back-to-catalog link
+  capture?: boolean // ?capture=1: suppress the (interactive-only) drawer toggle + nav
+  eyebrow?: string // header eyebrow (e.g. "PYTHON · SETUP"); also the back-to-catalog link
   index?: number // 0-based position of this section in the course
   total?: number // total sections in the course
   onHome?: () => void // back to the catalog (wired to the eyebrow)
+  onPrev?: () => void // previous section (same as ← key) — drives the portrait nav pager
+  onNext?: () => void // next section (same as → key)
 }) {
   const [open, setOpen] = useState(false) // drawer state; only affects the portrait layout
   const scene = getScene(section.scene)
@@ -67,6 +71,19 @@ export function SectionView({
         </button>
       )}
       <SlidePanel slide={section.slide} open={open} />
+      {/* Portrait nav pager — on-screen prev/next for touch devices (the ← / → keys have no mobile
+          equivalent). Portrait-only + capture-suppressed via CSS; sits above the drawer so it works
+          whether the slide is open or closed. */}
+      {!capture && (onPrev || onNext) && (
+        <nav className="slide-nav" aria-label="Section navigation">
+          <button className="slide-nav__btn" onClick={onPrev} aria-label="Previous section" disabled={!onPrev}>
+            ‹
+          </button>
+          <button className="slide-nav__btn" onClick={onNext} aria-label="Next section" disabled={!onNext}>
+            ›
+          </button>
+        </nav>
+      )}
     </div>
   )
 }
