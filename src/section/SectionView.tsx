@@ -56,43 +56,33 @@ export function SectionView({
         )}
         <h1 className="reel-head__title">{section.title}</h1>
       </header>
-      {/* Footer — under ?capture=1 it brands the video (GraphL + §n/N chapter mark); interactively it
-          becomes the live control bar: narration toggle (left) + prev/next (right). Raised above the
-          portrait drawer (reel-foot--controls) so nav works while the slide is open. */}
-      <footer className={`reel-foot${capture ? '' : ' reel-foot--controls'}`}>
-        {capture ? (
-          <>
-            <span className="reel-foot__brand">GraphL</span>
-            {total > 0 && (
-              <span className="reel-foot__count">
-                §{index + 1} / {total}
-              </span>
-            )}
-          </>
-        ) : (
-          <>
-            <button
-              className="reel-foot__ctrl"
-              onClick={onToggleNarration}
-              aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
-              title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
-            >
-              {narrating ? <Volume2 size={18} /> : <VolumeX size={18} />}
+      {/* Footer control bar — interactive ONLY (narration toggle + prev/next + position). Suppressed
+          under ?capture=1 so the captured video frame stays clean: no GraphL wordmark, no counter,
+          just the eyebrow/title + scene. Raised above the portrait drawer so nav works while the
+          slide is open. */}
+      {!capture && (
+        <footer className="reel-foot reel-foot--controls">
+          <button
+            className="reel-foot__ctrl"
+            onClick={onToggleNarration}
+            aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+            title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
+          >
+            {narrating ? <Volume2 size={18} /> : <VolumeX size={18} />}
+          </button>
+          <span className="reel-foot__nav">
+            <button className="reel-foot__ctrl" onClick={onPrev} aria-label="Previous section (←)" title="Previous section (←)">
+              <ChevronLeft size={19} />
             </button>
-            <span className="reel-foot__nav">
-              <button className="reel-foot__ctrl" onClick={onPrev} aria-label="Previous section (←)" title="Previous section (←)">
-                <ChevronLeft size={19} />
-              </button>
-              <span className="reel-foot__count reel-foot__count--live">
-                {index + 1} / {total}
-              </span>
-              <button className="reel-foot__ctrl" onClick={onNext} aria-label="Next section (→)" title="Next section (→)">
-                <ChevronRight size={19} />
-              </button>
+            <span className="reel-foot__count reel-foot__count--live">
+              {index + 1} / {total}
             </span>
-          </>
-        )}
-      </footer>
+            <button className="reel-foot__ctrl" onClick={onNext} aria-label="Next section (→)" title="Next section (→)">
+              <ChevronRight size={19} />
+            </button>
+          </span>
+        </footer>
+      )}
       <div className="scene-area">
         <SceneView scene={scene} focusId={section.focus} />
       </div>
