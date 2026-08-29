@@ -97,10 +97,12 @@ body {
   outline-offset: 2px;
 }
 
-/* Footer control bar (interactive only; capture keeps the GraphL + §n/N branding). Raised above the
-   portrait drawer (z 11 > drawer z 10) so narration + nav stay usable while the slide is open. */
-.reel-foot--controls {
-  z-index: 11;
+/* Footer control bar (interactive only). Raised above the portrait drawer so Home + narration + nav
+   stay usable while the slide is open. Compound selector (.reel-foot.reel-foot--controls, 0,2,0) so it
+   outranks the base .reel-foot rule (z-index 8 / align baseline), which is defined LATER in the file —
+   at equal specificity that base would win here. */
+.reel-foot.reel-foot--controls {
+  z-index: 12;
   align-items: center;
 }
 .reel-foot__grp,
