@@ -74,15 +74,27 @@ body {
   top: 14px;
   right: 14px;
   z-index: 11;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(26, 29, 35, 0.9);
-  color: var(--fg);
-  font-size: 22px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 19px;
   line-height: 1;
   cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.slide-toggle:hover {
+  color: var(--idx-accent);
+  border-color: var(--idx-accent);
+}
+.slide-toggle:focus:not(:focus-visible) {
+  outline: none;
+}
+.slide-toggle:focus-visible {
+  outline: 2px solid var(--idx-accent);
+  outline-offset: 2px;
 }
 
 /* Footer control bar (interactive only; capture keeps the GraphL + §n/N branding). Raised above the

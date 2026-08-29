@@ -12,9 +12,11 @@ import { SlidePanel } from './SlidePanel'
 //                                    brand the scene column (title lives in the slide, so it's hidden).
 //   portrait  (mobile → reel)      — scene fills the frame, slide is a right drawer toggled by ⟨; the
 //                                    header shows the full title card.
-// The same chrome renders in the interactive app AND at capture; only the drawer toggle is
-// capture-suppressed. Navigation (← / →) and narration (Space) are keyboard-driven — no on-screen
-// buttons — and the eyebrow doubles as the "back to catalog" link.
+// Under ?capture=1 the frame is clean for video: eyebrow + title on top, GraphL + §n/N branding
+// below, and NO interactive controls (the drawer toggle and the footer control bar are both
+// suppressed). Interactively, the footer becomes a control bar (narration toggle + prev/next), the
+// drawer toggle appears (portrait), and the eyebrow doubles as the "back to catalog" link. Keyboard
+// still works everywhere (← / → navigate, Space toggles narration).
 export function SectionView({
   section,
   capture = false,
