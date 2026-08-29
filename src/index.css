@@ -107,7 +107,7 @@ body {
   transition: color 0.2s;
 }
 .brand-home:hover {
-  color: #f0902f; /* AWS-orange, matching the catalog accent */
+  color: #4b8bbe; /* Python-blue, matching the catalog accent */
 }
 
 /* Section header/footer — shared chrome for the interactive app AND the captured video. It brands the
@@ -137,13 +137,13 @@ body {
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: #f0902f; /* AWS-orange accent, matching the catalog brand */
+  color: #4b8bbe; /* Python-blue accent, matching the catalog brand */
   pointer-events: auto; /* the one clickable element in the header → back to catalog */
   cursor: pointer;
   transition: color 0.2s;
 }
 .reel-head__eyebrow:hover {
-  color: #f7a94f;
+  color: #6aa9dd;
 }
 .reel-head__title {
   margin: 0;
@@ -263,18 +263,18 @@ body {
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.01em;
-  color: #f0902f; /* AWS-orange brand accent — same anchor as the reel eyebrow + catalog */
+  color: #4b8bbe; /* Python-blue brand accent — same anchor as the reel eyebrow + catalog */
 }
-/* `###` → a section heading in teal: a cool counter to the warm orange title. Sentence-case and
-   sized above the body (a real heading, not a quiet eyebrow) — the warm/cool pair structures the
-   slide at a glance while the body stays neutral. */
+/* `###` → a section heading in Python-yellow: a warm counter to the cool blue title (the Python
+   logo's blue + yellow). Sentence-case and sized above the body (a real heading, not a quiet
+   eyebrow) — the warm/cool pair structures the slide at a glance while the body stays neutral. */
 .slide-panel__scaler h3 {
   margin: 30px 0 12px;
   font-size: var(--fs-heading);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
-  color: #5cc0cf;
+  color: #ffd43b; /* Python-yellow */
 }
 .slide-panel__scaler p {
   margin: 0 0 16px;
@@ -316,9 +316,9 @@ body {
 
 /* --- Course catalog / landing page (CourseIndex) ---------------------------- */
 /* The index is a scrollable page (unlike the fixed stage): the catalog of courses, each course a
-   card listing its ordered sections. AWS-orange (--idx-accent) is the one accent. */
+   card listing its ordered sections. Python-blue (--idx-accent) is the one accent. */
 .idx {
-  --idx-accent: #f0902f;
+  --idx-accent: #4b8bbe;
   --idx-muted: #8b909c;
   --idx-line: rgba(255, 255, 255, 0.09);
   min-height: 100vh;
