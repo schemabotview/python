@@ -75,17 +75,17 @@ export function SectionView({
               aria-label={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
               title={narrating ? 'Pause narration (Space)' : 'Play narration (Space)'}
             >
-              {narrating ? <Volume2 size={22} /> : <VolumeX size={22} />}
+              {narrating ? <Volume2 size={18} /> : <VolumeX size={18} />}
             </button>
             <span className="reel-foot__nav">
               <button className="reel-foot__ctrl" onClick={onPrev} aria-label="Previous section (←)" title="Previous section (←)">
-                <ChevronLeft size={24} />
+                <ChevronLeft size={19} />
               </button>
               <span className="reel-foot__count reel-foot__count--live">
                 {index + 1} / {total}
               </span>
               <button className="reel-foot__ctrl" onClick={onNext} aria-label="Next section (→)" title="Next section (→)">
-                <ChevronRight size={24} />
+                <ChevronRight size={19} />
               </button>
             </span>
           </>

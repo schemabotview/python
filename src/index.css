@@ -100,9 +100,9 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(26, 29, 35, 0.9);
   color: rgba(255, 255, 255, 0.82);
@@ -113,6 +113,14 @@ body {
 .reel-foot__ctrl:hover {
   color: var(--idx-accent);
   border-color: var(--idx-accent);
+}
+/* Drop the focus ring on click/tap; keep a keyboard-only ring for accessibility. */
+.reel-foot__ctrl:focus:not(:focus-visible) {
+  outline: none;
+}
+.reel-foot__ctrl:focus-visible {
+  outline: 2px solid var(--idx-accent);
+  outline-offset: 2px;
 }
 .reel-foot__count--live {
   pointer-events: none;
