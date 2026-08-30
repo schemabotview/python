@@ -1,0 +1,11 @@
+{
+  "_comment": "Curated publish titles (YouTube title + thumbnail header) per course, keyed by course id. An override for the registry's in-app narrative course.title — wire into gen-descriptions.mjs / thumb.mjs when the publish step should use these instead. Preserved from the retired central capture/ recorder.",
+  "setup": "Python Runtime",
+  "syntax": "Python Syntax",
+  "data": "Python Data Structures",
+  "oop": "Python OOP",
+  "idioms": "Python Idioms",
+  "stdlib": "Python Standard Library",
+  "concurrency": "Python Concurrency",
+  "project": "Python Project"
+}
