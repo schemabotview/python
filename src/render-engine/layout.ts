@@ -10,6 +10,7 @@
 
 import type { Scene, SceneNode, SceneEdge } from './types'
 import { codeCardSize } from './codeMetrics'
+import { memoryCardSize } from './memoryMetrics'
 
 export const NODE_W = 210
 export const NODE_H = 96
@@ -98,6 +99,8 @@ function layoutSubtree(
       sized.set(n.id, { w: boxW, h: inner.h + header + PAD, kids: inner.placed, header })
     } else if (n.kind === 'code') {
       sized.set(n.id, codeCardSize(n)) // an IDE card: sized to its content (longest line × line count)
+    } else if (n.kind === 'memory') {
+      sized.set(n.id, memoryCardSize(n)) // a layout figure: sized to its slots (widest cell × slot count)
     } else if (n.variant === 'tile') {
       sized.set(n.id, { w: TILE_W, h: TILE_H })
     } else {

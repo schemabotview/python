@@ -1,43 +1,30 @@
 import type { Scene } from '../../render-engine'
 
 // §6 objects — where the values live: on the heap, as objects. In Python EVERYTHING is one. int 5
-// opened byte by byte: the shared header every object carries (ob_refcnt · ob_type) then the int's
-// body (ob_size · ob_digit) — 24-byte header → getsizeof(5) = 28, and big ints just grow more digit
-// chunks. Then: same header, different tail (float inline · list/str varobject · instance __dict__).
-// Names-are-references + is/== ride the slide. The shared header is the focus.
+// opened byte by byte, drawn as a MEMORY figure (kind: 'memory'): one contiguous block whose cells
+// share their edges, offsets on an axis outside it, and brackets grouping the shared header every
+// object carries (ob_refcnt · ob_type) against the int's own body (ob_size · ob_digit). Adjacency and
+// offsets ARE the content here — a grid of separate cards would read as unordered peers and lose the
+// 24 B → getsizeof(5) = 28 arithmetic, which only lands if you can count the slots down the block.
+// Then: same header, different tail (float inline · list/str varobject · instance __dict__) as a real
+// 3-way comparison, so that one stays a grid. Names-are-references + is/== ride the slide.
 export const objects: Scene = {
   id: 'objects',
   padding: 0.16,
   nodes: [
     {
       id: 'pylong',
+      kind: 'memory',
       label: 'int 5  =  PyLongObject',
-      pattern: 'service',
-      icon: 'boxes',
-      sub: 'header = 24 B → sys.getsizeof(5) = 28',
-      children: [
-        {
-          id: 'header',
-          label: 'shared header · every object',
-          pattern: 'user',
-          icon: 'layers',
-          cols: 2,
-          children: [
-            { id: 'refcnt', label: 'ob_refcnt', pattern: 'user', icon: 'tag', sub: '0x00 · reference count' },
-            { id: 'obtype', label: 'ob_type', pattern: 'user', icon: 'scanface', sub: '0x08 · what it can do' },
-          ],
-        },
-        {
-          id: 'body',
-          label: 'int body',
-          pattern: 'storage',
-          icon: 'database',
-          cols: 2,
-          children: [
-            { id: 'obsize', label: 'ob_size', pattern: 'storage', icon: 'gauge', sub: '0x10 · digit count' },
-            { id: 'obdigit', label: 'ob_digit[]', pattern: 'storage', icon: 'boxes', sub: '0x18 · = 5 (grows → bigint)' },
-          ],
-        },
+      pattern: 'user',
+      sub: 'header = 24 B  →  sys.getsizeof(5) = 28',
+      slots: [
+        // Consecutive slots sharing a `group` bracket together — so these are two runs of two, not
+        // four singletons: the header every object carries, then the part that is this int's own.
+        { at: '0x00', name: 'ob_refcnt', note: 'reference count', group: 'PyObject_HEAD · every object' },
+        { at: '0x08', name: 'ob_type', note: 'what it can do', group: 'PyObject_HEAD · every object' },
+        { at: '0x10', name: 'ob_size', note: 'digit count', group: 'int body · this int only' },
+        { at: '0x18', name: 'ob_digit[0]', note: '= 5  (grows → bigint)', group: 'int body · this int only' },
       ],
     },
     {

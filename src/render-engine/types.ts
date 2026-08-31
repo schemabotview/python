@@ -4,6 +4,16 @@
 
 export type PatternKey = 'service' | 'storage' | 'network' | 'user' | 'external' | 'group'
 
+// One cell of a MEMORY node. `at` is the offset painted on the axis outside the block; `name` fills
+// the cell; `note` trails it, aligned into a common column across the figure. Consecutive slots that
+// share a `group` are bracketed together on the right.
+export interface MemorySlot {
+  at: string
+  name: string
+  note?: string
+  group?: string
+}
+
 export interface SceneNode {
   id: string
   label: string
@@ -16,8 +26,20 @@ export interface SceneNode {
   // lines); `filename` names the tab. Python is code-first, so most scenes are one big code card. Size
   // is computed from the content (longest line × line count) and fitView scales it, so it stays crisp
   // at 4K. Ignores `pattern`/`icon`; may still sit in a flow (edges route to/from it).
-  kind?: 'code'
+  // A MEMORY node renders the textbook object-layout figure: a contiguous block of cells that share
+  // their edges, an offset axis outside the block, and brackets grouping consecutive cells into named
+  // regions. Carries `slots` instead of `label` lines; `label` titles it and `sub` captions it.
+  // Use it wherever the subject IS a byte layout — adjacency and offsets are the content, and a grid
+  // of separate cards would misrepresent them as unordered peers.
+  kind?: 'code' | 'memory'
+  slots?: MemorySlot[] // memory node only: the cells, top→bottom in address order
   filename?: string // the tab label on a code node (e.g. "list.py")
+  // Opt a code card OUT of the CODE_MIN_COLS width floor, sizing it to its own longest line instead.
+  // The floor exists so a card that IS the scene renders its type at the deck-wide size; but for a card
+  // that is one ELEMENT inside a diagram, width sets the whole composition's size, not the type size —
+  // padding a 21-col bytecode listing out to 64 just inflates the scene and shrinks everything in it.
+  // Set this on code cards that sit alongside other nodes; leave it off for a standalone card.
+  hug?: boolean
   // A node with `children` is a CONTAINER: the engine lays the children out inside it and sizes the
   // box to fit them (a labelled group). Children with no edges stack vertically. Lets a scene show
   // nesting — "AWS Cloud ⊃ services", a Region ⊃ its AZs — instead of faking peers as a flow chain.
