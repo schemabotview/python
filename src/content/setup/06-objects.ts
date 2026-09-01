@@ -4,7 +4,7 @@ export const objects: Section = {
   id: 'objects',
   title: 'Everything is an object',
   scene: 'objects',
-  focus: 'header',
+  focus: 'pylong', // was 'header' — no such node; the header is a `group` bracket INSIDE pylong
   slide: `## Everything is an object
 
 Those values \`2\`, \`3\`, \`5\` aren't stored *in* the frame — they're **objects on the heap**. In Python, **everything** is.
