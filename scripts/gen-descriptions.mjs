@@ -19,7 +19,7 @@
 
 import { execFile } from 'node:child_process'
 import { build } from 'esbuild'
-import { mkdirSync, writeFileSync, existsSync } from 'node:fs'
+import { mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import { dirname, join, resolve } from 'node:path'
@@ -41,6 +41,22 @@ const SITE = process.env.SITE ?? 'https://graphl.in'
 const APP_PATH = (process.env.APP_PATH ?? '/python').replace(/\/$/, '')
 const HASHTAGS =
   '#Python #LearnPython #PythonProgramming #Coding #Programming #SoftwareDevelopment #PythonForBeginners #TechEducation'
+
+// Curated PUBLISH titles (scripts/titles.json), keyed by course id — the search-facing name a course
+// carries on YouTube ("Python Data Structures"), deliberately distinct from the registry's narrative
+// in-app title ("Data structures"). Used for this video's headline AND every series entry, so the
+// description names courses the same way the thumbnails and video titles do. Absent file → registry.
+const PUBLISH_TITLES = (() => {
+  const f = join(here, 'titles.json')
+  if (!existsSync(f)) return {}
+  try {
+    const { _comment, ...titles } = JSON.parse(readFileSync(f, 'utf8'))
+    return titles
+  } catch {
+    return {}
+  }
+})()
+const publishTitle = (course) => PUBLISH_TITLES[course.id] ?? course.title
 
 const titleCase = (slug) => slug.split(/[-_]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 // m:ss (or h:mm:ss past an hour) — YouTube chapter format; first chapter must be 0:00.
@@ -72,7 +88,10 @@ async function loadRegistry() {
 const RULE = '━━━━━━━━━━━━━━━━'
 function compose({ course, chapters, series }) {
   const L = []
-  L.push(`${course.title} · ${CONCEPT}`)
+  // Headline: "<title> · <concept>", but drop the suffix when the publish title already leads with the
+  // concept ("Python Data Structures · Python" stammers; "Python Data Structures" is the whole name).
+  const headline = publishTitle(course)
+  L.push(headline.toLowerCase().startsWith(CONCEPT.toLowerCase()) ? headline : `${headline} · ${CONCEPT}`)
   L.push(RULE)
   L.push(
     `Part of GraphL's ${CONCEPT} series — the diagram assembles top-to-bottom as the narration walks ` +
@@ -84,7 +103,7 @@ function compose({ course, chapters, series }) {
   L.push(RULE)
   L.push(`▶ ${CONCEPT.toUpperCase()} — THE SERIES`)
   series.forEach((s, i) => {
-    const label = s.id === course.id ? `${s.title}  ◀ this video` : s.title
+    const label = s.id === course.id ? `${publishTitle(s)}  ◀ this video` : publishTitle(s)
     L.push(`${CIRCLED[i] ?? '•'} ${label} → ${SITE}${APP_PATH}/#/${s.id}`)
   })
   L.push(RULE)

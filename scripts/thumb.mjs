@@ -107,9 +107,24 @@ async function startDevServer(conceptDir) {
   return { child, url }
 }
 
-// course title from the typed COURSES registry (+ titles.json override if present), so the panel copy
-// matches what ships. The content files import ONLY `../types` (erased) → the bundle has no runtime deps.
+// Curated PUBLISH titles (scripts/titles.json), keyed by course id — the header a thumbnail wears on
+// YouTube ("Python Data Structures"), which is search-facing and so deliberately differs from the
+// registry's narrative in-app title ("Data structures"). Optional: absent file → registry title.
+const PUBLISH_TITLES = (() => {
+  const f = join(here, 'titles.json')
+  if (!existsSync(f)) return {}
+  try {
+    const { _comment, ...titles } = JSON.parse(readFileSync(f, 'utf8'))
+    return titles
+  } catch {
+    return {}
+  }
+})()
+
+// course title: titles.json override first, else the typed COURSES registry, so the panel copy matches
+// what ships. The content files import ONLY `../types` (erased) → the bundle has no runtime deps.
 async function courseTitle(course) {
+  if (PUBLISH_TITLES[course]) return PUBLISH_TITLES[course]
   try {
     const result = await build({
       entryPoints: [resolve(appDir, 'src/content/index.ts')],
