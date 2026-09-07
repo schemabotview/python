@@ -59,6 +59,10 @@ export interface SceneNode {
 export interface SceneEdge {
   source: string
   target: string
+  // Renders as a small pill riding the path's midpoint, filled with the canvas colour so it
+  // interrupts the line rather than sitting on it. Keep it SHORT (a word or two): the pill is sized
+  // to its text, and a long one overruns the gap between the two nodes it connects. Don't spell an
+  // arrow in the text ("not found →") — the arrow is already drawn underneath.
   label?: string
   // Draw an arrowhead at BOTH ends (and a pulse travelling each way) — for a genuinely two-way
   // relationship (VPC peering, a public subnet's in-and-out internet access) rather than a one-way

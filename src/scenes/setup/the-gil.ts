@@ -24,8 +24,10 @@ export const theGil: Scene = {
     },
   ],
   edges: [
+    // Only ONE of the two contending edges is labelled: they converge on the same lock, so a second
+    // identical "want" pill beside the first is noise — one label reads as covering the pair.
     { source: 'threadA', target: 'gil', label: 'want' },
-    { source: 'threadB', target: 'gil', label: 'want' },
+    { source: 'threadB', target: 'gil' },
     { source: 'gil', target: 'loop', label: 'holds' },
   ],
 }

@@ -44,8 +44,10 @@ export const concurrencyModels: Scene = {
         { id: 'cm-taskB', label: 'task B', pattern: 'network', icon: 'gitbranch', sub: 'runs while A waits' },
       ],
       edges: [
-        { source: 'cm-loop', target: 'cm-taskA', label: 'run' },
-        { source: 'cm-taskA', target: 'cm-loop', label: 'await → yield' },
+        // ONE two-way edge, not a counter-pair: both directions share a midpoint, so two labels
+        // would land on the same point — and it is one relationship (the loop runs a task, the task
+        // yields back at an await), not two.
+        { source: 'cm-loop', target: 'cm-taskA', label: 'run ⇄ yield', bidirectional: true },
         { source: 'cm-loop', target: 'cm-taskB', label: 'run next' },
       ],
     },

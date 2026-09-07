@@ -84,6 +84,12 @@ export function SceneView({ scene, focusId }: { scene: Scene; focusId?: string }
 
   return (
     <div ref={wrap} style={{ width: '100%', height: '100%' }}>
+      {/* react-flow paints .react-flow__nodes AFTER .react-flow__edgelabel-renderer and sets no
+          z-index on either, so an edge label is covered by any node/container it overlaps — a label
+          on a short edge between two cards simply disappears. Lift the label layer above the nodes.
+          It lives here (rather than in the app's stylesheet) so the render-engine folder stays
+          self-contained and portable between concept repos. */}
+      <style>{'.react-flow__edgelabel-renderer { z-index: 5; }'}</style>
       {/* Soft glow for the travelling edge pulse; referenced by FlowEdge via url(#flow-pulse-glow). */}
       <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden>
         <defs>

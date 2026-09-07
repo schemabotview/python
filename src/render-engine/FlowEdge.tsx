@@ -7,7 +7,7 @@
 // freezes it at one position; the base line + arrow always render, so static capture degrades
 // cleanly. Getting the motion into the composited video is a capture-pipeline concern, not here.
 
-import { BaseEdge, getBezierPath, type EdgeProps } from '@xyflow/react'
+import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react'
 
 export function FlowEdge({
   sourceX,
@@ -20,8 +20,10 @@ export function FlowEdge({
   markerStart,
   style,
   data,
+  label,
 }: EdgeProps) {
-  const [edgePath] = getBezierPath({
+  // getBezierPath also hands back the path's midpoint — where the label rides.
+  const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
     targetX,
@@ -38,6 +40,34 @@ export function FlowEdge({
       <circle r={4.5} fill={pulse} opacity={0.9} filter="url(#flow-pulse-glow)">
         <animateMotion dur="2.4s" repeatCount="indefinite" path={edgePath} rotate="auto" />
       </circle>
+      {/* The edge's label, as a pill riding the path midpoint. It renders in EdgeLabelRenderer — a
+          DOM layer ABOVE the nodes — so a label can never be hidden behind a container box, and it
+          pans/zooms with the viewport like everything else (DOM text, so still crisp at 4K). The fill
+          is the canvas colour on purpose: the line is INTERRUPTED by the label rather than crossed by
+          it, which a translucent pill would turn to mud at capture size. */}
+      {label && (
+        <EdgeLabelRenderer>
+          <div
+            style={{
+              position: 'absolute',
+              transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
+              pointerEvents: 'none',
+              padding: '2px 8px',
+              borderRadius: 6,
+              background: '#1a1d23', // the scene canvas — see --bg / index.css
+              border: '1px solid #2a2f38',
+              color: '#9aa4b2',
+              fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+              fontSize: 12.5,
+              fontWeight: 500,
+              lineHeight: 1.3,
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {label}
+          </div>
+        </EdgeLabelRenderer>
+      )}
       {/* A two-way edge gets a second pulse travelling the other way (end → start). */}
       {d?.bidirectional && (
         <circle r={4.5} fill={pulse} opacity={0.9} filter="url(#flow-pulse-glow)">
