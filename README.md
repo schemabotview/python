@@ -38,7 +38,7 @@ scripts/
 ```bash
 npm install
 npm run dev                 # open the printed URL, try #/setup
-npm run build               # tsc + vite build (must stay clean)
+npm run build               # vite build only — NO typecheck; run `npx tsc --noEmit` separately
 npm run record setup        # 4K video → scripts/out/setup.mp4
 npm run record:reels setup  # portrait reels
 ```
