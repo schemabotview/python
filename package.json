@@ -19,7 +19,7 @@
     "thumb": "node scripts/thumb.mjs"
   },
   "dependencies": {
-    "@graphlearning/flow": "^0.1.0",
+    "@graphlearning/flow": "^0.5.0",
     "@xyflow/react": "^12.11.2",
     "lucide-react": "^1.28.0",
     "react": "^19.2.0",
