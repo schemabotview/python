@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 objects — where the values live: on the heap, as objects. In Python EVERYTHING is one. int 5
 // opened byte by byte, drawn as a MEMORY figure (kind: 'memory'): one contiguous block whose cells

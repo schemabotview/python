@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §10 Ship — one editor card (a shell session): venv-isolate → editable install (wires the command) →
 // pytest → run your own tool; then build a wheel + twine upload to PyPI. ↩ C1.

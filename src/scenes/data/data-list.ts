@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 list — one editor card: create & access, grow & shrink, search & order, build.
 export const dataList: Scene = {

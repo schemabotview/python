@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { idiomsOverview } from './idioms-overview'
 import { idiomsIterators } from './idioms-iterators'
 import { idiomsGenerators } from './idioms-generators'

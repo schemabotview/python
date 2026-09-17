@@ -23,7 +23,6 @@ Workspace-wide model, pipeline, and conventions: see the workspace [`README.md`]
 
 ```
 src/
-  render-engine/   layout + react-flow / code-snippet renderer (folder, not a package)
   scenes/          hand-authored scenes + registry
   content/         courses → sections (one file per section) + registry
   section/         composited scene-left / slide-right view (responsive)

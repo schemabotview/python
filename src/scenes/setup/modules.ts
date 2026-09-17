@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 modules — organize your OWN code with the same subsystem libraries use. Every .py file is a
 // module; import searches sys.path in a fixed order — your code → stdlib → venv/site-packages — and

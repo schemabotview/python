@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 Parse — one editor card: a compiled regex (level word + /path) turns each raw line into a typed
 // Entry, robustly (no match → None, skip junk rather than crash). ↩ C6, C4.

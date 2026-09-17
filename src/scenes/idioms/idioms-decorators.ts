@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 decorators — one editor card: a decorator wraps a call (@timer = work = timer(work)),
 // functools.wraps to keep identity, and a decorator that takes arguments (@retry(3)).

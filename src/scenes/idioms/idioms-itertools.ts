@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 itertools — one editor card: infinite streams (count/cycle/islice), combine & slice (chain,
 // islice), and group & combine (groupby, product, combinations, accumulate).

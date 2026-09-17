@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 install-repl — get CPython on your machine and talk to it live. A single terminal code card,
 // read top-down: install it (one line per platform), verify the version (CPython is the reference

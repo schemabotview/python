@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 Model — one editor card: a Level Enum (fixed named set) + an Entry dataclass (one parsed log
 // line as a typed record). ↩ C4.

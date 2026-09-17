@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { stdlibOverview } from './stdlib-overview'
 import { stdlibFiles } from './stdlib-files'
 import { stdlibPathlib } from './stdlib-pathlib'

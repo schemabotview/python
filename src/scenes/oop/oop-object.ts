@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 the-object — one editor card: construct (calls __init__), use through the dot, each object owns
 // its state, and dynamic attributes.

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 set — one editor card: create & test, set algebra, compare, frozenset.
 export const dataSet: Scene = {

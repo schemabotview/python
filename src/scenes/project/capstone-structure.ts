@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 Structure — one editor card: the package layout tree + the pyproject.toml manifest (name, deps,
 // and the [project.scripts] entry point that becomes the command). ↩ C1.

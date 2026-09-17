@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 abstraction — one editor card: an ABC as a contract (@abstractmethod with no body), a shared
 // concrete method that calls the abstract one, and the can't-instantiate guarantee.

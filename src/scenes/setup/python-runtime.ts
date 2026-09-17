@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 the-run (reused by §10 you-are-here) — the execution SPINE: how CPython runs a file, top to
 // bottom. Two stacked bands so each owns its row: the execution spine (You → app.py / REPL → the

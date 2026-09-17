@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 expressions — one editor card: every operator family in one file (arithmetic · comparison &
 // logical · identity/membership/bitwise · precedence · truthiness · walrus), grouped by headers.

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 inheritance — one editor card: subclass (is-a), super() to extend, override, and the MRO.
 export const oopInheritance: Scene = {

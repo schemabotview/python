@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 polymorphism — one editor card: same call / per-type behavior, duck typing (no base class
 // needed), and polymorphic operators.

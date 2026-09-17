@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 data-model — one editor card: the dunder hooks Python's syntax calls on your object (__repr__,
 // __eq__/__lt__, __add__/__len__), so print/==/</sorting/+ "just work".

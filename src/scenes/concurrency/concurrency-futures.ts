@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 pools — one editor card: the low-level Thread + Lock, then the easy way (a ThreadPoolExecutor:
 // map / submit + as_completed), and the killer feature — swap to ProcessPoolExecutor, same API.

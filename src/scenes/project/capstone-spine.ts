@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 8's overview/finale board — the §1 brief + §11 "you did it". The build-flow as THREE PHASE
 // COLUMNS: Scaffold (set up) · Pipeline (the real data flow) · Deliver (ship it). A genuine SEQUENCE,

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 5's overview board — the §1 opener + §10 "you are here" bookend. The eight idioms as peer
 // cards, grouped into the four ideas the studio rows imply: lazy iteration · functions as values ·

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 Interface — one editor card: argparse turns command-line args into a pipeline run; main() is the
 // entry point pyproject mapped the command to; try/except + logging fail gracefully. ↩ C2, C6.

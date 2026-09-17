@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 json — one editor card: strings (dumps/loads), files (dump/load), pretty & options, the mapping.
 export const stdlibJson: Scene = {

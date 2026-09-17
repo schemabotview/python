@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 logging — one editor card: configure once (basicConfig + getLogger), the five levels & a
 // threshold, everyday touches (lazy %-format, exception()).

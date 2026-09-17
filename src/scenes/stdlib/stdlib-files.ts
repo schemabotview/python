@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 file-io — one editor card: read (whole/lazy), write (w truncates, a appends), modes & encoding.
 export const stdlibFiles: Scene = {

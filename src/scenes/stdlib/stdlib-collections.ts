@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 collections — one editor card: Counter (tally), defaultdict (auto default), deque (fast both
 // ends), namedtuple (light record).

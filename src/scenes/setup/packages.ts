@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 packages — the other half of setup. You rarely start from scratch: pip fetches from PyPI into
 // site-packages, and a venv gives each project its OWN isolated copy so versions never collide. Top:

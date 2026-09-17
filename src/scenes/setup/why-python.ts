@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 why-exists — WHY the language exists: the "missing middle". Between shell scripts (quick but
 // fragile) and C (powerful but fiddly), Python is the readable-and-capable middle. Drawn as two

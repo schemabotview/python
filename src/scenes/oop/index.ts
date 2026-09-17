@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { oopOverview } from './oop-overview'
 import { oopClass } from './oop-class'
 import { oopObject } from './oop-object'

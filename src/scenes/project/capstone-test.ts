@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 Test — one editor card: a test is a test_* function + an assert (pytest discovers & runs them);
 // parametrize runs one test over a table of cases. ↩ pytest (new).

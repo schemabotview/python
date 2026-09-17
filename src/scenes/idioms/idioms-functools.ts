@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 functools — one editor card: reduce (fold), partial (pre-fill args), lru_cache/cache (memoize),
 // and wraps (keep a wrapper's identity).

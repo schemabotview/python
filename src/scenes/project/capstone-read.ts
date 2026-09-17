@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 Read — one editor card: glob every log file (pathlib) + stream their lines lazily (a generator +
 // a context manager), so gigabytes flow through one line at a time. ↩ C5, C6.

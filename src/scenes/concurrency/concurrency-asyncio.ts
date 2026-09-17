@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §8 asyncio — one editor card: coroutines with async def, await = yield to the loop, run many with
 // gather / TaskGroup, asyncio.run drives the loop; the all-or-nothing catch (needs async libs).

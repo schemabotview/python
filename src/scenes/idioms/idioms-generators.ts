@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 generators — one editor card: yield (pause & resume), lazy generator expressions, lazy
 // pipelines, and yield from.

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 closures — one editor card: capture the enclosing scope, independent captures, and nonlocal to
 // rebind a captured var.

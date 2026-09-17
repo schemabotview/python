@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 functions — one editor card: def / call / return, the argument kinds (positional · default ·
 // keyword · *args → tuple · **kwargs → dict), and scope + first-class functions.

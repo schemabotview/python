@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 pathlib — one editor card: build with /, a path knows itself, one-call read/write, find files.
 export const stdlibPathlib: Scene = {

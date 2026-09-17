@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 datetime — one editor card: points & spans (datetime/date/timedelta), format & parse
 // (strftime/strptime/isoformat), and prefer aware time zones.

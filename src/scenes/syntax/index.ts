@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { syntaxOverview } from './syntax-overview'
 import { variables } from './variables'
 import { expressions } from './expressions'

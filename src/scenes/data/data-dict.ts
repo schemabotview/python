@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 dict — one editor card: create & access, update & remove, iterate, build.
 export const dataDict: Scene = {

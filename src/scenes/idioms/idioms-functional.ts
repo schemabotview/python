@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 functional-builtins — one editor card: lambda, map/filter (lazy), the key= idiom, any/all.
 export const idiomsFunctional: Scene = {

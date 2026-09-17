@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { capstoneSpine } from './capstone-spine'
 import { capstoneStructure } from './capstone-structure'
 import { capstoneModel } from './capstone-model'

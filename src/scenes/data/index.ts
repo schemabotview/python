@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { dataOverview } from './data-overview'
 import { dataList } from './data-list'
 import { dataTuple } from './data-tuple'

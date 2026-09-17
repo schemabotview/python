@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 variables — one editor card: the data types, binding & dynamic typing, convert & inspect, and
 // the handy forms, grouped by comment headers. Short lines keep the auto-fit font large at 4K.

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 Scale — one editor card: a @timed decorator (closure) + a ProcessPoolExecutor to fan CPU-bound
 // parsing across every core (processes, not threads — the decision guide applied). ↩ C5, C7.

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 conditionals — one editor card: if / elif / else, truthy conditions, the ternary, and match/case.
 export const conditionals: Scene = {

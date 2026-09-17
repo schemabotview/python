@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 @dataclass — one editor card: declare typed fields, get __init__/__repr__/__eq__ free; the
 // mutable-default gotcha (field(default_factory=...)); frozen/order options.

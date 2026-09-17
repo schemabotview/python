@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 str — one editor card: slice like a sequence, transform (new strings), inspect, format.
 export const dataStr: Scene = {

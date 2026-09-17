@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 iterator-protocol — one editor card: what `for` really does (iter/next/StopIteration), the loop
 // unrolled, and a hand-rolled iterable.

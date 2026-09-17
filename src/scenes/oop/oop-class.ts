@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 the-class — one editor card: define a blueprint (class attr, __init__, instance attrs), methods
 // that act on self (and guard rules), and __repr__.

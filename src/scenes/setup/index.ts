@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { whyPython } from './why-python'
 import { installRepl } from './install-repl'
 import { pythonRuntime } from './python-runtime'

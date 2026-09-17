@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { concurrencyModels } from './concurrency-models'
 import { concurrencyWorkloads } from './concurrency-workloads'
 import { concurrencyFutures } from './concurrency-futures'

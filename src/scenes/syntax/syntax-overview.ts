@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 2's overview board — the §1 opener + §8 "you are here" bookend. The six core constructs of
 // Python syntax as peer cards, grouped into the three couplets the §1 slide names: write data ·

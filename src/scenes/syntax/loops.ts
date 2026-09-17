@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 loops — one editor card: for & while, steering (break/continue/else), and iterating well
 // (range/enumerate/zip).

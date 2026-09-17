@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 eval-loop — what "the PVM executes the bytecode" actually means, folded into two stacked groups
 // shaped to the pane's portrait aspect (a wide LR pair of rows fits by width and wastes the height):

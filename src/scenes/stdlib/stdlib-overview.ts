@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 6's overview board — the §1 opener + §10 "you are here" bookend. The eight stdlib areas as
 // peer cards, grouped into the four ideas the studio rows imply: files & paths · data formats · dates

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 7's mechanism scene (the pvm-internals role) — reused across §1-§5 + §10 with a different
 // band focused each time. Concurrency is model-heavy and the models are SPATIAL (who shares memory,

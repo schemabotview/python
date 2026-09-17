@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 tuple — one editor card: create & unpack, immutable → hashable, why tuples, named fields.
 export const dataTuple: Scene = {

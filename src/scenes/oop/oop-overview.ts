@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 4's overview board — the §1 opener + §10 "you are here" bookend. The eight core-OOP features
 // as peer cards, grouped into the four themes the studio rows imply: the foundation · relating types ·

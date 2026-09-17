@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 workloads — one editor card: classify the work (I/O-bound = waiting → threads/async · CPU-bound
 // = computing → processes) and why the GIL is the deciding factor.

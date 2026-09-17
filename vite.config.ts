@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// The render-engine lives in src/render-engine (a folder, not a package) for the MVP, so no alias
-// is needed yet. `dedupe` is kept anyway: it guarantees a single copy of react / react-dom /
-// @xyflow/react even once the engine is extracted to its own package and consumed via alias — the
-// gotcha that bites when two React copies meet (invalid-hook-call). jsx is automatic by default
-// with @vitejs/plugin-react.
+// The render engine is the @graphlearning/flow package, not a local folder. `dedupe` is what keeps
+// a single copy of react / react-dom / @xyflow/react across this app and the package — the gotcha
+// that bites when two React copies meet (invalid-hook-call). The package declares them as peer deps
+// and externalises them, so it never carries its own React; dedupe is the belt to that braces.
+// jsx is automatic by default with @vitejs/plugin-react.
 //
 // `base` is `/python/` for the production BUILD only (the app deploys under graphl.in/python/ as a
 // concept app in the GraphL catalog — matching the repo name schemabotview/python — so built asset

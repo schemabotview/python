@@ -5,7 +5,9 @@ live in the workspace [`CLAUDE.md`](../CLAUDE.md) — read that first; this file
 
 ## What this is
 
-A standalone concept app: its own scenes + courses + a bundled render-engine (`src/render-engine`).
+A standalone concept app: its own scenes + courses. The render engine is the **`@graphlearning/flow`**
+package (repo `schemabotview/ui-flow`) — pinned by version, so an engine change never lands here
+until this repo upgrades and re-verifies.
 Each **section** = `(scene, slide, narration)`; the left scene is a react-flow diagram or a code
 snippet, the right slide is markdown. One section = one slide = one video segment. (Python content
 mixes concept diagrams with code-snippet scenes — pick whichever carries the idea.)
@@ -18,7 +20,6 @@ mixes concept diagrams with code-snippet scenes — pick whichever carries the i
 ## Layout
 
 ```
-src/render-engine/   layout + renderer (import from the barrel index, never deep paths)
 src/scenes/          scenes + registry (a scene can be shared across sections)
 src/content/         courses → sections + registry
 src/section/         scene-left / slide-right composited view (responsive)

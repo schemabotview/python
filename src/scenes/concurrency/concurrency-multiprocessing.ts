@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §9 multiprocessing — one editor card: a Pool (one worker per core, own GIL → truly parallel), and
 // the cost (data is pickled across → send coarse chunks; fn & data must be picklable).

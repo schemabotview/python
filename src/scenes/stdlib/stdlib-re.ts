@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 re — one editor card: find (search/findall/match/finditer), capture groups, replace & split,
 // compile a reused pattern. Raw strings so \\ reaches the regex engine.

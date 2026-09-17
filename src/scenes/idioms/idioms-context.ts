@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 context-managers — one editor card: with (guaranteed setup/cleanup), several at once, a class
 // with __enter__/__exit__, and the easy @contextmanager generator form.

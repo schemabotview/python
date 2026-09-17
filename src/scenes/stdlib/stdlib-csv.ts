@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 csv — one editor card: read by header (DictReader) or position (reader), write, and let the
 // module handle commas/quotes inside fields.

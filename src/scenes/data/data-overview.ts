@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // Course 3's overview board — the §1 opener + §8 "you are here" bookend. The six built-in containers
 // as peer cards, grouped into the three kinds the studio rows imply: sequences you index · hash-based

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 Aggregate — one editor card: reduce the stream of Entries to the numbers that matter with a
 // Counter fed by a lazy generator expression; most_common gives the top paths sorted, free. ↩ C3, C6.

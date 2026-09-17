@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 frames — the loop always runs inside a FRAME, and every call gets its own. Two regions SIDE BY
 // SIDE (scene flow 'LR'), matching the slide's two headings:

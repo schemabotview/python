@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 exceptions — one editor card: try / except (with `as e`), else / finally, and raising your own.
 export const exceptions: Scene = {

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 comprehensions — one editor card: list, dict & set, generator (lazy), and why.
 export const dataComprehensions: Scene = {

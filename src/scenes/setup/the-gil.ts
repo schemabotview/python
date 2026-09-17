@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §7 the-gil — the catch the refcount hides. Every object's ob_refcnt must stay exact, but threads
 // share the heap: two threads bumping the same count at once corrupt it. CPython's answer is one big
