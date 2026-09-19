@@ -1,0 +1,10 @@
+/* Python's design surface — the three tokens @graphlearning/shell leaves to the repo.
+   Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade.
+
+   Python-blue as the brand, Python-yellow as the counter tone: the language's own logo pairing,
+   and the same anchor the catalog card and the thumbnail gradient use, so app and catalog match. */
+:root {
+  --brand: #4b8bbe; /* Python-blue */
+  --brand-hover: #6aa9dd; /* lighter blue — the eyebrow's hover state */
+  --accent-2: #ffd43b; /* Python-yellow — the slide's `###` subheading */
+}

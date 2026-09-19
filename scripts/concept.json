@@ -1,0 +1,8 @@
+{
+  "_comment": "Per-repo publishing identity, read by @graphlearning/shell's thumb / gen-descriptions scripts. Env vars (CONCEPT, SITE, APP_PATH, HASHTAGS, PANEL_BG) still override.",
+  "concept": "Python",
+  "site": "https://graphl.in",
+  "appPath": "/python",
+  "hashtags": "#Python #LearnPython #PythonProgramming #Coding #Programming #SoftwareDevelopment #PythonForBeginners #TechEducation",
+  "panelBg": "radial-gradient(118% 104% at 70% 34%, #4b8bbe 0%, #306998 42%, #16324a 100%)"
+}
